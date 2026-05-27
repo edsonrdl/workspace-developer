@@ -1,8 +1,14 @@
 # Pattern: MVC
 
 > Políticas específicas para arquitetura Model-View-Controller. Em um SDD completo seria dividido em: `models.md`, `controllers.md`, `views.md`, `middleware.md`, `routing.md` Consolidado aqui por ser ambiente de teste.
-> 
-> Estende: [[constitution]]
+
+---
+
+## Referências
+
+<!-- LINK AQUI: a constituição define as regras universais que este pattern estende. Tudo que está na constituição se aplica aqui — este arquivo só adiciona o que é específico da arquitetura MVC. -->
+
+- [[constitution]]
 
 ---
 

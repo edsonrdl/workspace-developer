@@ -4,15 +4,9 @@
 
 ---
 
-## Instruções para o agente de IA
+## Autoridade deste documento
 
-Ao ler qualquer `sdd.md` deste vault:
-
-1. Leia este arquivo primeiro
-2. Leia o arquivo de políticas da arquitetura referenciada no SDD
-3. Leia os arquivos linkados em `[[patterns/...]]`
-4. Só então inicie qualquer implementação
-5. Se houver conflito entre documentos, este arquivo tem prioridade
+Este arquivo tem prioridade sobre qualquer outro documento do vault. Em caso de conflito entre este arquivo e um pattern ou workspace, este prevalece. Nenhuma regra aqui pode ser sobrescrita por documentos filhos.
 
 ---
 
@@ -67,15 +61,8 @@ Todo repositório deve conter na raiz:
 
 ---
 
-## Arquiteturas disponíveis neste vault
-
-Cada uma possui sua própria constituição com políticas específicas:
-
-
----
-
 ## Controle de versão deste documento
 
-| Versão | Data    | Mudança        |
-| ------ | ------- | -------------- |
-| 1.0    | 2025-05 | Versão inicial |
+|Versão|Data|Mudança|
+|---|---|---|
+|1.0|2025-05|Versão inicial|

@@ -4,10 +4,9 @@
 
 ## Referências
 
-<!-- LINK AQUI: os NFRs de qualidade (cobertura, segurança, logs) já estão definidos na constituição — não repetimos aqui. Só listamos o que é específico deste serviço. -->
+<!-- LINK AQUI: os NFRs universais que NÃO estão neste arquivo porque já estão na constituição. -->
 
-- [[constitution]] — qualidade mínima, segurança, logs
-- [[spec]] — contexto do problema e escopo
+- [[constitution]] — NFRs universais: cobertura mínima, segurança, logs sem dados sensíveis, qualidade de código
 
 ---
 
@@ -35,10 +34,8 @@
 
 <!-- NFRs gerais (80% cobertura, sem segredos no código, logs sem dados sensíveis) estão em [[constitution]] — não repetir. Aqui ficam apenas os NFRs únicos deste serviço. -->
 
-**NFR-001** — Tempo de resposta do endpoint de criação: p99 abaixo de 3s.
+**NFR-001** — Tempo de resposta do endpoint de criação: p99 abaixo de 3s no caminho nominal (gateway responde sem acionar retry).
 
 **NFR-002** — Não armazenar dados de cartão — apenas token retornado pelo gateway.
 
-**NFR-003** — Timeout de 5s em toda chamada ao gateway, com retry exponencial (máx 3x).
-
-**NFR-004** — Idempotência obrigatória via header `Idempotency-Key` no endpoint de criação.
+**NFR-003** — Idempotência obrigatória via header `Idempotency-Key` no endpoint de criação.

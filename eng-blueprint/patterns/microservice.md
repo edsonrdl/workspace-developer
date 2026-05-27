@@ -1,8 +1,14 @@
 # Pattern: Microservice
 
 > Políticas específicas para arquitetura de microserviços. Em um SDD completo seria dividido em: `boundaries.md`, `communication.md`, `deployment.md`, `resilience.md` Consolidado aqui por ser ambiente de teste.
-> 
-> Estende: [[constitution]]
+
+---
+
+## Referências
+
+<!-- LINK AQUI: a constituição define as regras universais que este pattern estende. Tudo que está na constituição se aplica aqui — este arquivo só adiciona o que é específico da arquitetura de microserviços. -->
+
+- [[constitution]]
 
 ---
 

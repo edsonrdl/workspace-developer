@@ -4,6 +4,14 @@
 
 ---
 
+## Referências
+
+<!-- LINK AQUI: as regras universais que este pattern não pode violar. O agente lê a constituição antes de aplicar qualquer padrão de API. -->
+
+- [[constitution]]
+
+---
+
 ## Estrutura de URL
 
 ```

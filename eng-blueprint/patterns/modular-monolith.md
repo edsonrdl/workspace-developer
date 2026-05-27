@@ -1,8 +1,14 @@
 # Pattern: Modular Monolith
 
 > Políticas específicas para arquitetura de monolito modular. Em um SDD completo seria dividido em: `modules.md`, `boundaries.md`, `shared-kernel.md`, `events.md`, `deployment.md` Consolidado aqui por ser ambiente de teste.
-> 
-> Estende: [[constitution]]
+
+---
+
+## Referências
+
+<!-- LINK AQUI: a constituição define as regras universais que este pattern estende. Tudo que está na constituição se aplica aqui — este arquivo só adiciona o que é específico da arquitetura de monolito modular. -->
+
+- [[constitution]]
 
 ---
 

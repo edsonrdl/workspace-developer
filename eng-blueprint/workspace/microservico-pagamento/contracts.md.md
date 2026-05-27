@@ -4,9 +4,9 @@
 
 ## Referências
 
-<!-- LINK AQUI: o envelope de resposta, códigos HTTP, paginação e auth já estão definidos no pattern de REST API. Este arquivo define APENAS o que é único deste serviço: os campos dos endpoints, o modelo de dados e os eventos. O agente lê o pattern e aplica o envelope automaticamente. -->
+<!-- LINK AQUI: as regras que NÃO estão aqui porque já estão no pattern. Envelope de resposta, autenticação e paginação vêm do rest-api — este arquivo só declara o que é específico deste serviço. -->
 
-- [[patterns/rest-api]] — envelope, HTTP codes, paginação, auth, logs
+- [[patterns/rest-api]] — envelope `{ data, meta }`, header `Authorization`, formato de paginação
 
 ---
 
@@ -33,7 +33,7 @@
 **Headers adicionais específicos:**
 
 ```
-Idempotency-Key: uuid   // obrigatório — ver NFR-004 em requirements.md
+Idempotency-Key: uuid   // obrigatório — ver NFR-003 em requirements.md
 ```
 
 **Retorno de sucesso:** status 201, `data` com o objeto Payment.
@@ -61,7 +61,7 @@ Sem body. Retorna objeto Payment completo. Status 200.
 {
   id: uuid                    // PK
   orderId: uuid               // indexed
-  status: enum                // PENDING | APPROVED | FAILED | REFUNDED
+  status: enum                // PENDING | APPROVED | FAILED
   method: enum                // CREDIT_CARD | PIX | BOLETO
   amountValue: integer        // em centavos
   amountCurrency: string      // BRL

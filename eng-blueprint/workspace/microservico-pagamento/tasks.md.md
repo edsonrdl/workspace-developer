@@ -6,9 +6,9 @@
 
 <!-- LINK AQUI: as tarefas derivam do plano técnico e dos contratos. O agente lê o plan e os contracts antes de executar qualquer tarefa. A ordem das tarefas abaixo é a ordem de implementação. -->
 
-- [[plan]] — decisões técnicas que guiam cada tarefa
+- [[plan.md]] — decisões técnicas que guiam cada tarefa
 - [[contracts.md]] — o que cada tarefa deve produzir
-- [[acceptance]] — como validar que cada tarefa está correta
+- [[acceptance.md]] — como validar que cada tarefa está correta
 
 ---
 
@@ -24,7 +24,7 @@
 
 ### TASK-002 — Modelo de dados e migração
 
-- Criar entidade `Payment` conforme modelo em [[contracts]]
+- Criar entidade `Payment` conforme modelo em [[contracts.md]]
 - Criar migration inicial da tabela `payments_transactions`
 - Criar repository com métodos: `save`, `findById`, `findByOrderId`, `findByIdempotencyKey`
 
@@ -32,20 +32,20 @@
 
 - Implementar `CreatePaymentUseCase` na camada `application/`
 - Incluir verificação de idempotência antes de chamar gateway
-- Incluir lógica de ordem de operações conforme [[plan]]
-- Testes unitários cobrindo fluxo feliz e casos de borda de [[acceptance]]
+- Incluir lógica de ordem de operações conforme [[plan.md]]
+- Testes unitários cobrindo fluxo feliz e casos de borda de [[acceptance.md]]
 
 ### TASK-004 — Integração com gateway
 
 - Implementar `GatewayClient` na camada `infrastructure/`
-- Timeout de 5s e retry exponencial com 3 tentativas conforme NFR-003
+- Timeout e retry exponencial conforme [[patterns/microservice]] — seção Resiliência
 - Testes de integração com mock do gateway
 
 ### TASK-005 — Publicação de eventos
 
 - Implementar `EventPublisher` na camada `infrastructure/`
-- Publicar `PAYMENT_APPROVED` e `PAYMENT_FAILED` conforme contratos em [[contracts]]
-- Garantir que falha na publicação vai para dead letter queue conforme [[plan]]
+- Publicar `PAYMENT_APPROVED` e `PAYMENT_FAILED` conforme contratos em [[contracts.md]]
+- Garantir que falha na publicação vai para dead letter queue conforme [[plan.md]]
 
 ### TASK-006 — Controllers e rotas
 
@@ -56,6 +56,4 @@
 
 ### TASK-007 — Validação dos critérios de aceite
 
-- Rodar checklist completo de [[acceptance]]
-- Verificar cobertura de testes ≥ 80%
-- Verificar que nenhum log contém dados sensíveis
+- Rodar checklist completo de [[acceptance.md]]
