@@ -1,0 +1,27 @@
+{
+	"nodes":[
+		{"id":"g-eng","type":"group","x":-240,"y":-150,"width":1000,"height":700,"color":"4","label":"✅ Engenharia com Governança de IA — a solução"},
+		{"id":"g-bottom","type":"group","x":-800,"y":620,"width":1560,"height":360,"color":"6","label":"📦 Spec vive no repositório — documentação que não fica no limbo"},
+		{"id":"g-vibe","type":"group","x":-800,"y":-150,"width":530,"height":700,"color":"1","label":"⚡ Vibe Code — o problema"},
+		{"id":"vibe-def","type":"text","text":"**O que é Vibe Code?**\nDesenvolvimento guiado pela sensação de que está funcionando. A IA gera, o dev aceita. Sem spec prévia, sem critério de aceite, sem trilha de decisão. Rápido no início — caro na escala.","x":-770,"y":-90,"width":470,"height":110,"color":"1"},
+		{"id":"vibe-p1","type":"text","text":"**Velocidade sem contrato**\nIA decide arquitetura sozinha\nSem trilha de decisão auditável","x":-770,"y":40,"width":470,"height":100,"color":"1"},
+		{"id":"vibe-p2","type":"text","text":"**Documentação no limbo**\nRequisitos desacoplados do código\nNinguém sabe qual versão está vigente","x":-770,"y":160,"width":470,"height":100,"color":"1"},
+		{"id":"eng-r1","type":"text","text":"**1. Constitution → AI Policy**\nPrincípios inegociáveis em código: ética, limites de dados, critérios de risco. Nenhum projeto viola. Nenhum agente ignora.","x":-210,"y":-90,"width":940,"height":100,"color":"4"},
+		{"id":"eng-r2","type":"text","text":"**2. Spec como contrato vivo**\nCada ferramenta de IA tem spec: o que faz, o que não faz, quais dados acessa, quem aprova mudanças. Código e spec coexistem no repositório.","x":-210,"y":30,"width":940,"height":100,"color":"4"},
+		{"id":"eng-r3","type":"text","text":"**3. SpecOps — specs versionadas como código**\nSpec com controle de versão, revisão por pares e merge controlado. Elimina o problema \"qual versão está vigente?\"","x":-210,"y":150,"width":940,"height":100,"color":"4"},
+		{"id":"eng-r4","type":"text","text":"**4. Governança como garantia de design, não auditoria**\nSDD sem governança = outputs frágeis mais rápido. A velocidade da IA exige controle proporcional — não como freio, mas como trilho.","x":-210,"y":270,"width":940,"height":100,"color":"4"},
+		{"id":"vibe-p3","type":"text","text":"**Zero rastreabilidade**\nOutputs frágeis produzidos mais rápido\nGovernança impossível na escala","x":-770,"y":280,"width":470,"height":100,"color":"1"},
+		{"id":"vibe-p4","type":"text","text":"**Risco acumulado**\nDébito técnico mascarado de agilidade\nAuditoria regulatória inviável","x":-770,"y":400,"width":470,"height":100,"color":"1"},
+		{"id":"eng-r5","type":"text","text":"**5. Phase Gates — HITL / HOTL / HIC por nível de risco**\nCódigo gerado por IA passa por aprovação antes de integrar. Spec-anchored garante trilha de auditoria nativa e restrições constitucionais.","x":-210,"y":390,"width":940,"height":100,"color":"4"},
+		{"id":"title","type":"text","text":"# Vibe Code vs Engenharia de Software\n## com Governança de IA Aplicada","x":-800,"y":-340,"width":1560,"height":120},
+		{"id":"outcome","type":"text","text":"🎯  Velocidade da IA + rigor de engenharia = outputs auditáveis, versionados e aprovados por humano","x":-800,"y":1010,"width":1560,"height":70,"color":"5"},
+		{"id":"bot-b1","type":"text","text":"**Blueprint versionado no vault**\n\n• constitution.md — regras universais\n• patterns/ — padrões arquiteturais\n• Evolução via ADR formal\n• Pipeline barra refatoração não aprovada","x":-760,"y":680,"width":480,"height":260},
+		{"id":"bot-b2","type":"text","text":"**Spec no repositório do projeto**\n\n• spec · requirements · contracts\n• acceptance · plan · tasks.md\n• tasks.md com estado [x] / [ ]\n• Agente retoma de onde parou","x":-260,"y":680,"width":480,"height":260},
+		{"id":"bot-b3","type":"text","text":"**Sem documentos esquecidos**\n\n• Novas tasks adicionadas na spec\n• Tasks pendentes ficam [ ] esperando\n• CHANGELOG.md atualizado a cada release\n• Documentação que acompanha o código","x":240,"y":680,"width":480,"height":260}
+	],
+	"edges":[
+		{"id":"e-vibe-eng","fromNode":"vibe-def","fromSide":"right","toNode":"eng-r1","toSide":"left","color":"4","label":"a alternativa"},
+		{"id":"e-r5-bottom","fromNode":"eng-r5","fromSide":"bottom","toNode":"bot-b2","toSide":"top","color":"6","label":"como implementar"},
+		{"id":"e-bottom-outcome","fromNode":"bot-b3","fromSide":"bottom","toNode":"outcome","toSide":"top","color":"5"}
+	]
+}

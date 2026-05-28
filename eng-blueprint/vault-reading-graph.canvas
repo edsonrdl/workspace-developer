@@ -1,0 +1,29 @@
+{
+	"nodes":[
+		{"id":"title","type":"text","text":"# Fluxo de Dependências — eng-blueprint\n## Microserviço de Pagamentos","x":-750,"y":-650,"width":1210,"height":110},
+		{"id":"n-constitution","type":"text","text":"**constitution**","x":-175,"y":-500,"width":220,"height":60,"color":"6"},
+		{"id":"n-microservice","type":"text","text":"**microservice**","x":-400,"y":-300,"width":220,"height":60,"color":"4"},
+		{"id":"n-rest-api","type":"text","text":"**rest-api**","x":50,"y":-300,"width":220,"height":60,"color":"4"},
+		{"id":"n-spec","type":"text","text":"**spec.md**\nponto de entrada","x":-700,"y":-100,"width":210,"height":70,"color":"5"},
+		{"id":"n-requirements","type":"text","text":"**requirements.md**","x":-400,"y":-100,"width":220,"height":60,"color":"1"},
+		{"id":"n-contracts","type":"text","text":"**contracts.md**","x":50,"y":-100,"width":220,"height":60,"color":"1"},
+		{"id":"n-acceptance","type":"text","text":"**acceptance.md**","x":-400,"y":150,"width":220,"height":60,"color":"1"},
+		{"id":"n-plan","type":"text","text":"**plan.md**","x":50,"y":150,"width":220,"height":60,"color":"1"},
+		{"id":"n-tasks","type":"text","text":"**tasks.md**","x":-175,"y":400,"width":220,"height":60,"color":"1"},
+		{"id":"t-reading-order","type":"text","text":"Ordem de leitura definida em spec.md:\n1 constitution · 2 microservice · 3 rest-api · 4 requirements · 5 contracts · 6 acceptance · 7 plan · 8 tasks","x":-750,"y":520,"width":1100,"height":70},
+		{"id":"t-legend","type":"text","text":"■ vault raiz (roxo)   ■ patterns (verde)   ■ workspace (vermelho)   ■ entrada (azul)\n→ referência direta declarada em ## Referências do arquivo","x":-750,"y":610,"width":750,"height":56}
+	],
+	"edges":[
+		{"id":"e-const-req","fromNode":"n-constitution","fromSide":"bottom","toNode":"n-requirements","toSide":"top","color":"6"},
+		{"id":"e-micro-plan","fromNode":"n-microservice","fromSide":"right","toNode":"n-plan","toSide":"top","color":"4","label":"resiliência e estrutura"},
+		{"id":"e-rest-contracts","fromNode":"n-rest-api","fromSide":"bottom","toNode":"n-contracts","toSide":"top","color":"4","label":"envelope e paginação"},
+		{"id":"e-spec-req","fromNode":"n-spec","fromSide":"right","toNode":"n-requirements","toSide":"left","color":"5","label":"inicia em"},
+		{"id":"e-req-acc","fromNode":"n-requirements","fromSide":"bottom","toNode":"n-acceptance","toSide":"top"},
+		{"id":"e-req-plan","fromNode":"n-requirements","fromSide":"right","toNode":"n-plan","toSide":"left"},
+		{"id":"e-contracts-acc","fromNode":"n-contracts","fromSide":"left","toNode":"n-acceptance","toSide":"right"},
+		{"id":"e-contracts-plan","fromNode":"n-contracts","fromSide":"bottom","toNode":"n-plan","toSide":"top"},
+		{"id":"e-contracts-tasks","fromNode":"n-contracts","fromSide":"bottom","toNode":"n-tasks","toSide":"right"},
+		{"id":"e-acc-tasks","fromNode":"n-acceptance","fromSide":"bottom","toNode":"n-tasks","toSide":"left"},
+		{"id":"e-plan-tasks","fromNode":"n-plan","fromSide":"bottom","toNode":"n-tasks","toSide":"right"}
+	]
+}

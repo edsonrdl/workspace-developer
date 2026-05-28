@@ -1,6 +1,4 @@
-![[Pasted image 20260527191916.png]]
 
-A ordem é exatamente a sequência numérica que está no grafo:
 
 ```
 spec → requirements → contracts → acceptance → plan → tasks

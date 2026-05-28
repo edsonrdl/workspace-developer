@@ -1,0 +1,13 @@
+# Projetos no workspace são repositórios independentes — não versionar aqui
+eng-blueprint/workspace/*/
+
+# Obsidian — estado local da UI, não faz parte do vault versionado
+eng-blueprint/.obsidian/workspace
+eng-blueprint/.obsidian/workspace.json
+eng-blueprint/.obsidian/cache
+eng-blueprint/.trash/
+
+# Node / dependências de projetos locais
+node_modules/
+dist/
+coverage/
