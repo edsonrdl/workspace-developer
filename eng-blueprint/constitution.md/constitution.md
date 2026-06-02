@@ -1,68 +1,51 @@
-# Constitution
+# Constitution — Índice
 
-> Este é o documento raiz do vault `eng-blueprint`. Contém apenas o que é universal — regras que se aplicam a qualquer projeto, independente de arquitetura ou tecnologia escolhida. Cada arquitetura estende este documento com suas próprias políticas. Nenhuma regra aqui pode ser sobrescrita por documentos filhos.
+> Documento raiz do vault `eng-blueprint`.
+> Contém apenas o que é universal — regras que se aplicam a qualquer projeto, independente de arquitetura ou tecnologia.
+> **Nenhuma regra aqui pode ser sobrescrita por documentos filhos.**
+> Em caso de conflito entre este arquivo e um pattern ou workspace, este prevalece.
 
 ---
 
 ## Autoridade deste documento
 
-Este arquivo tem prioridade sobre qualquer outro documento do vault. Em caso de conflito entre este arquivo e um pattern ou workspace, este prevalece. Nenhuma regra aqui pode ser sobrescrita por documentos filhos.
+Este índice e todos os arquivos desta pasta têm prioridade máxima no vault. Cada seção é um documento independente que pode evoluir via ADR formal — mas nunca pode ser contraditado por patterns ou specs de projetos.
 
 ---
 
-## Linguagem e stack aprovados
+## Seções
 
-- **Linguagem principal:** TypeScript
-- **Runtime:** Node.js (versão LTS vigente)
-- **Cloud:** AWS (único provedor aprovado)
-- **Infraestrutura como código:** Terraform ou AWS CDK
-- **Controle de versão:** Git — nomenclatura de branches segue convenção `tipo/descricao-curta`
-
-Qualquer adição de linguagem ou provedor fora desta lista requer aprovação do arquiteto e registro de ADR antes de qualquer implementação.
-
----
-
-## Segurança — inegociável
-
-- Nenhum segredo, chave, token ou credencial no código ou no repositório
-- Segredos via AWS Secrets Manager ou Parameter Store
-- Toda comunicação externa via HTTPS
-- Dados sensíveis nunca em logs — sem CPF, senha, token, número de cartão
-- Dependências auditadas antes de qualquer merge em produção (`npm audit`)
+| Seção | Conteúdo |
+|---|---|
+| [[stack]] | Linguagem, runtime, cloud e controle de versão aprovados |
+| [[security]] | Segredos, comunicação, dados sensíveis, dependências |
+| [[quality]] | Linting, cobertura, padrões de código |
+| [[observability]] | Logs estruturados, traces, métricas, health check |
+| [[testing]] | Pirâmide de testes, estratégia de mock, cobertura por camada |
+| [[documentation]] | Documentação obrigatória por repositório |
+| [[governance]] | Processo de aprovação de novos padrões e ADRs |
 
 ---
 
-## Qualidade de código
+## Como referenciar nos documentos filhos
 
-- Cobertura mínima de testes: **80%**
-- Linting obrigatório: ESLint com configuração do repositório de padrões da empresa
-- Sem `any` explícito em TypeScript sem justificativa documentada no código
-- Toda função com mais de 20 linhas deve ter comentário de propósito
-- Nenhum `console.log` em produção — usar logger estruturado aprovado
+Referencie a seção específica — não o índice inteiro:
 
----
+```
+[[security]]      — quando a regra é sobre segredos ou dados sensíveis
+[[observability]] — quando a regra é sobre logs, traces ou métricas
+[[testing]]       — quando a regra é sobre cobertura ou estratégia de testes
+[[quality]]       — quando a regra é sobre linting ou padrões de código
+[[stack]]         — quando a regra é sobre linguagem ou provedor de cloud
+```
 
-## Documentação obrigatória por repositório
-
-Todo repositório deve conter na raiz:
-
-- `README.md` — propósito, como rodar localmente, variáveis de ambiente necessárias
-- `CHANGELOG.md` — atualizado a cada release
-- `docs/adr/` — decisões arquiteturais registradas em ADR
+Use `[[constitution]]` apenas quando quiser referenciar a autoridade geral — não uma seção específica.
 
 ---
 
-## Processo de aprovação de novos padrões
+## Controle de versão
 
-1. Proposta escrita em formato ADR no repositório de padrões
-2. Revisão pelo arquiteto responsável
-3. Se aprovado, documentado nos arquivos de `patterns/` deste vault
-4. Implementações anteriores à aprovação são consideradas experimentais
-
----
-
-## Controle de versão deste documento
-
-|Versão|Data|Mudança|
+| Versão | Data | Mudança |
 |---|---|---|
-|1.0|2025-05|Versão inicial|
+| 1.0 | 2025-05 | Versão inicial — documento único |
+| 2.0 | 2026-06 | Quebrado em seções independentes linkadas |

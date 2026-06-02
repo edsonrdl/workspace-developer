@@ -39,29 +39,38 @@ A resposta: **as specs vivem no repositório junto com o código**. A IA lê a s
 ### A arquitetura em três camadas
 
 ```
-eng-blueprint/                    ← VAULT (versionado, este repositório)
-├── constitution.md               ← Regras universais inegociáveis
-├── patterns/                     ← Padrões arquiteturais reutilizáveis
-│   ├── microservice.md
-│   ├── rest-api.md
-│   ├── modular-monolith.md
-│   └── mvc.md
-└── workspace/                    ← Projetos reais (NÃO versionados aqui)
-    └── nome-do-projeto/          ← raiz do repo clonado e será versionado
-        ├── sdd/                  ← specs versionadas JUNTO com o código
-        │   ├── spec.md           ← ponto de entrada da IA
-        │   ├── requirements.md
-        │   ├── contracts.md
-        │   ├── acceptance.md
-        │   ├── plan.md
-        │   └── tasks.md
-        ├── src/                  ← código-fonte
+eng-blueprint/                         ← VAULT (versionado, este repositório)
+├── constitution.md/                   ← Lei universal — dividida em seções linkadas
+│   ├── constitution.md                ← índice com links para todas as seções
+│   ├── stack.md                       ← linguagem, cloud, branches aprovados
+│   ├── security.md                    ← segredos, HTTPS, dados sensíveis
+│   ├── quality.md                     ← linting, cobertura, code review
+│   ├── observability.md               ← logs, traces, métricas, health check
+│   ├── testing.md                     ← pirâmide, mock strategy, cobertura
+│   ├── documentation.md               ← README, CHANGELOG, ADR obrigatórios
+│   └── governance.md                  ← processo de aprovação e ADRs
+├── engineering-playbooks/             ← "Como nós construímos software aqui"
+│   ├── README.md                      ← o que são os playbooks e como usar
+│   ├── microservice.md                ← estrutura, comunicação, resiliência, deploy
+│   ├── rest-api.md                    ← contratos HTTP, envelope, autenticação
+│   ├── modular-monolith.md            ← padrão de monólito modular
+│   └── mvc.md                         ← padrão MVC
+├── sdd-template/                      ← template para criar a sdd/ de novos projetos
+│   ├── README.md                      ← como usar o template
+│   ├── spec.md / requirements.md / contracts.md
+│   ├── acceptance.md / plan.md / tasks.md
+└── workspace/                         ← projetos clonados (NÃO versionados aqui)
+    └── nome-do-projeto/               ← raiz do repo clonado
+        ├── sdd/                       ← specs versionadas JUNTO com o código
+        │   ├── spec.md                ← ponto de entrada da IA
+        │   ├── requirements.md / contracts.md / acceptance.md
+        │   ├── plan.md / tasks.md
+        ├── src/                       ← código-fonte
         ├── tests/
-        ├── package.json
-        └── README.md
+        └── package.json
 ```
 
-**Camada 1 — Vault (eng-blueprint):** Contém as regras que se aplicam a todos os projetos. A `constitution.md` define o que nunca pode ser violado. Os `patterns/` definem como fazer, não o quê fazer. Este repositório é versionado independentemente.
+**Camada 1 — Vault (eng-blueprint):** Contém as regras que se aplicam a todos os projetos. A `constitution.md/` é uma pasta de seções linkadas — cada uma evolui de forma independente via ADR. Os `engineering-playbooks/` definem como fazer, não o quê fazer. Este repositório é versionado independentemente.
 
 **Camada 2 — Workspace:** Pasta local onde você clona os repositórios dos projetos. Os projetos *não são versionados aqui* — eles têm seus próprios repositórios Git. O workspace apenas os reúne em um único ponto de leitura para o Obsidian e para os agentes de IA.
 
@@ -76,9 +85,9 @@ eng-blueprint/                    ← VAULT (versionado, este repositório)
    ↓
 2. Abra o vault inteiro no Obsidian
    ↓
-3. Os links [[constitution]] e [[patterns/microservice]] resolvem automaticamente
+3. Os links [[constitution]], [[microservice]], [[rest-api]] resolvem automaticamente
    ↓
-4. Dê o comando ao agente: "leia spec.md e implemente"
+4. Dê o comando ao agente: "leia sdd/spec.md e implemente"
    ↓
 5. O agente percorre a cadeia de dependências e implementa com contexto completo
    ↓
@@ -117,8 +126,8 @@ spec → requirements → contracts → acceptance → plan → tasks
 ```
 constitution.md
     ↓ (estende)
-patterns/microservice.md ──────────────────────────────┐
-patterns/rest-api.md ───────────────────────────────┐  │
+engineering-playbooks/microservice.md ──────────────────────────────┐
+engineering-playbooks/rest-api.md ───────────────────────────────┐  │
                                                     ↓  ↓
 spec.md ──→ requirements.md ──→ acceptance.md ──→ plan.md
                     ↓                  ↓              ↓
@@ -177,7 +186,7 @@ Usado quando **velocidade importa**, mas supervisão ainda é necessária: featu
 
 A IA opera de forma autônoma no dia a dia. O humano define regras, limites e objetivos — mas não acompanha cada ação.
 
-> *Exemplo neste sistema:* `constitution.md` e `patterns/` são as regras pré-definidas. CI/CD roda o agente automaticamente quando uma nova spec é adicionada. O agente segue as regras sem aprovação por ação.
+> *Exemplo neste sistema:* `constitution.md` e `engineering-playbooks/` são as regras pré-definidas. CI/CD roda o agente automaticamente quando uma nova spec é adicionada. O agente segue as regras sem aprovação por ação.
 
 Usado quando o sistema já é **maduro e confiável**: automações internas, geração de boilerplate, atualizações de dependências dentro das políticas da constitution.
 
@@ -219,37 +228,34 @@ Isso garante:
 
 ## A constitution — regras inegociáveis
 
-O arquivo `constitution.md` é o documento raiz. **Nenhuma regra aqui pode ser sobrescrita por documentos filhos.** Ele define:
+A `constitution.md/` é uma **pasta de seções linkadas** — cada uma evolui de forma independente via ADR formal, sem precisar alterar o índice central. Nenhuma regra aqui pode ser sobrescrita por documentos filhos.
 
-- **Stack aprovada:** TypeScript, Node.js LTS, AWS, Terraform/CDK, Git
-- **Segurança:** zero segredos no código, AWS Secrets Manager/Parameter Store, HTTPS obrigatório, dados sensíveis nunca em logs
-- **Qualidade:** cobertura mínima 80%, ESLint obrigatório, sem `any` explícito sem justificativa, sem `console.log` em produção
-- **Documentação:** `README.md`, `CHANGELOG.md` e `docs/adr/` obrigatórios por repositório
-- **Evolução:** novos padrões exigem ADR aprovado antes de qualquer implementação
+| Seção | O que define |
+|---|---|
+| [[stack]] | TypeScript, Node.js LTS, AWS, Terraform/CDK, Git |
+| [[security]] | Zero segredos no código, HTTPS obrigatório, dados sensíveis nunca em logs |
+| [[quality]] | Cobertura mínima 80%, ESLint obrigatório, sem `any` sem justificativa |
+| [[observability]] | Logs estruturados com `requestId`, traces com propagação, métricas RED, health check |
+| [[testing]] | Pirâmide unitário > integração > e2e, mock strategy, cobertura por camada |
+| [[documentation]] | `README.md`, `CHANGELOG.md` e `docs/adr/` obrigatórios por repositório |
+| [[governance]] | Quando criar ADR, processo de aprovação, como promover decisões para playbook |
 
-Qualquer tentativa de violar a constitution — seja por um desenvolvedor ou por um agente de IA — é um sinal de alarme imediato.
+Qualquer tentativa de violar a constitution — seja por um desenvolvedor ou por um agente de IA — é um sinal de alarme imediato. Referencie a seção específica nos seus documentos: `[[security]]`, `[[observability]]`, etc. — não o índice inteiro.
 
 ---
 
-## Como os patterns funcionam
+## Como os Engineering Playbooks funcionam
 
-Os `patterns/` são extensões da constitution para contextos específicos. Eles não repetem as regras universais — apenas adicionam o que é único de cada arquitetura.
+Os `engineering-playbooks/` são o **"como nós fazemos aqui"** — não design patterns genéricos da internet, mas as decisões arquiteturais padronizadas desta empresa. Eles estendem a `constitution/` para contextos específicos, sem repetir o que já está lá.
 
-**`patterns/microservice.md`** define:
-- Estrutura de pastas obrigatória (`src/application/`, `src/domain/`, `src/infrastructure/`, `src/interface/`)
-- Banco de dados isolado por serviço
-- Timeout de 5s em chamadas HTTP externas
-- Retry com backoff exponencial (3 tentativas)
-- Health check em `GET /health`
+| Playbook | Quando usar | O que define |
+|---|---|---|
+| [[microservice]] | Serviço com deploy independente | Estrutura de pastas, banco isolado, timeout 5s, retry, health check |
+| [[rest-api]] | Qualquer endpoint HTTP | Envelope `{ data, meta }`, autenticação JWT, paginação, códigos HTTP |
+| [[modular-monolith]] | Aplicação única com módulos | Fronteiras de módulo, comunicação interna, deploy único |
+| [[mvc]] | Aplicação web com MVC | Separação controller/model/view, roteamento |
 
-**`patterns/rest-api.md`** define:
-- Estrutura de URL (`/api/v{n}/{recurso}`)
-- Envelope de resposta obrigatório: `{ data, meta }`
-- Autenticação via `Authorization: Bearer {token}`
-- Paginação via query params (`page`, `limit`, `sort`, `order`)
-- Logs por request sem nenhum campo de payload
-
-Quando um novo padrão se repete em dois ou mais projetos, ele é promovido para `patterns/` via ADR formal. Isso transforma aprendizado tácito em conhecimento institucional versionado.
+**Como um playbook nasce:** uma decisão técnica aparece em `sdd/plan.md` de dois projetos diferentes → ADR proposto → aprovado → migra para `engineering-playbooks/` → os projetos referenciam com `[[nome-do-playbook]]`. Aprendizado tácito vira conhecimento institucional versionado.
 
 ---
 
@@ -270,7 +276,7 @@ Quando um novo padrão se repete em dois ou mais projetos, ele é promovido para
 - **Sem "qual versão está vigente?":** a `sdd/` vive no mesmo repositório que o código, com o mesmo controle de versão
 - **Code review com contexto completo:** o PR inclui `sdd/` + código — o revisor vê o que foi decidido, o que foi construído e como valida, tudo no mesmo diff
 - **Retomada automática:** `sdd/tasks.md` com estado `[x]`/`[ ]` permite parar e continuar sessões sem perder contexto
-- **Sem reinvenção de padrões:** `patterns/` são a resposta para "como devemos fazer isso aqui?"
+- **Sem reinvenção de padrões:** `engineering-playbooks/` são a resposta para "como devemos fazer isso aqui?"
 - **Documentação que não fica no limbo:** spec e código evoluem juntos no mesmo commit
 
 ---
@@ -299,7 +305,7 @@ Cada rodada de correção consome tokens. Cada pergunta de clarificação consom
 
 **1. Contexto escrito uma vez, reutilizado para sempre**
 
-A `constitution.md` e os `patterns/` são escritos uma vez e referenciados por todos os projetos. Em vez de explicar "use timeout de 5s, retry com backoff exponencial, health check em /health" em cada sessão, o agente lê `[[microservice]]` e encontra tudo. Uma linha no spec substitui um parágrafo de instrução.
+A `constitution.md` e os `engineering-playbooks/` são escritos uma vez e referenciados por todos os projetos. Em vez de explicar "use timeout de 5s, retry com backoff exponencial, health check em /health" em cada sessão, o agente lê `[[microservice]]` e encontra tudo. Uma linha no spec substitui um parágrafo de instrução.
 
 **2. Sem rodadas de clarificação**
 
@@ -311,7 +317,7 @@ Sem estado, uma sessão interrompida obriga o agente a "reconhecer" o que já fo
 
 **4. Sem repetição nos documentos**
 
-Cada arquivo da `sdd/` declara apenas o que é *único* daquele nível. O `requirements.md` não repete as regras da `constitution.md` — apenas referencia. O `plan.md` não repete o que já está em `patterns/microservice.md` — apenas declara as decisões específicas. **Menos tokens por leitura, mais sinal por token.**
+Cada arquivo da `sdd/` declara apenas o que é *único* daquele nível. O `requirements.md` não repete as regras da `constitution.md` — apenas referencia. O `plan.md` não repete o que já está em `engineering-playbooks/microservice.md` — apenas declara as decisões específicas. **Menos tokens por leitura, mais sinal por token.**
 
 **5. Primeira implementação correta**
 
@@ -342,7 +348,7 @@ cd eng-blueprint
 
 ### 2. Abra no Obsidian
 
-Abra o Obsidian → *Abrir pasta como vault* → selecione a pasta `eng-blueprint`. Todos os links `[[constitution]]`, `[[patterns/microservice]]` etc. estarão resolvidos e navegáveis.
+Abra o Obsidian → *Abrir pasta como vault* → selecione a pasta `eng-blueprint`. Todos os links `[[constitution]]`, `[[microservice]]` etc. estarão resolvidos e navegáveis.
 
 ### 3. Clone um projeto no workspace
 
@@ -352,9 +358,15 @@ cd workspace
 git clone <url-do-projeto> nome-do-projeto
 ```
 
-O Obsidian detecta automaticamente os novos arquivos `.md`. Os links da spec do projeto resolvem para os patterns e constitution do vault.
+O Obsidian detecta automaticamente os novos arquivos `.md`. Os links da spec do projeto (`[[constitution]]`, `[[microservice]]`, etc.) resolvem para os playbooks e seções da constitution do vault.
 
 ### 4. Crie a spec do projeto (se ainda não existir)
+
+Use o template incluído no vault:
+
+```bash
+cp -r sdd-template/ workspace/nome-do-projeto/sdd/
+```
 
 Cada projeto precisa de uma pasta `sdd/` na raiz do repositório com os seguintes arquivos:
 
@@ -392,10 +404,10 @@ O agente vai:
 ### 6. Verifique o que foi construído
 
 ```bash
-cd workspace/nome-do-projeto/nome-do-servico
-npm test           # testes passando
-npm run lint       # sem violações de ESLint
-npm run test:coverage  # cobertura ≥ 80%
+cd workspace/nome-do-projeto
+npm test                # testes passando
+npm run lint            # sem violações de ESLint
+npm run test:coverage   # cobertura ≥ 80%
 ```
 
 ---
@@ -404,29 +416,45 @@ npm run test:coverage  # cobertura ≥ 80%
 
 ```
 eng-blueprint/
-├── README.md                          ← este arquivo
-├── constitution.md/
-│   └── constitution.md               ← regras universais inegociáveis
-├── patterns/
-│   ├── microservice.md               ← estrutura, comunicação, resiliência, deploy
-│   ├── rest-api.md                   ← contratos HTTP, envelope, autenticação, paginação
-│   ├── modular-monolith.md           ← padrão de monólito modular
-│   └── mvc.md                        ← padrão MVC
-├── workspace/                        ← projetos clonados (não versionados aqui)
-│   └── microservico-pagamento/       ← exemplo incluso (projeto completo)
-│       ├── sdd/                      ← specs versionadas junto com o código
-│       │   ├── spec.md
-│       │   ├── requirements.md
-│       │   ├── contracts.md
-│       │   ├── acceptance.md
-│       │   ├── plan.md
-│       │   └── tasks.md
-│       ├── src/                      ← código gerado pelo agente
-│       ├── tests/
-│       └── package.json
-├── Fluxo.md                          ← explicação da ordem de leitura
-├── vibe-code-vs-sdd-governance.canvas ← canvas visual do problema vs solução
-└── vault-reading-graph.canvas        ← grafo de dependências dos documentos
+├── README.md                              ← este arquivo
+│
+├── constitution.md/                       ← lei universal, dividida em seções linkadas
+│   ├── constitution.md                    ← índice + autoridade + links para seções
+│   ├── stack.md                           ← linguagem, cloud, branches aprovados
+│   ├── security.md                        ← segredos, HTTPS, dados sensíveis
+│   ├── quality.md                         ← linting, cobertura, code review
+│   ├── observability.md                   ← logs, traces, métricas, health check
+│   ├── testing.md                         ← pirâmide, mock strategy, cobertura
+│   ├── documentation.md                   ← README, CHANGELOG, ADR obrigatórios
+│   └── governance.md                      ← processo de ADR e aprovação de playbooks
+│
+├── engineering-playbooks/                 ← "como nós construímos software aqui"
+│   ├── README.md                          ← o que são os playbooks, como usar e contribuir
+│   ├── microservice.md                    ← estrutura, comunicação, resiliência, deploy
+│   ├── rest-api.md                        ← contratos HTTP, envelope, autenticação, paginação
+│   ├── modular-monolith.md                ← padrão de monólito modular
+│   └── mvc.md                             ← padrão MVC
+│
+├── sdd-template/                          ← template para criar a sdd/ de novos projetos
+│   ├── README.md                          ← como usar, quando cada arquivo está pronto
+│   ├── spec.md                            ← template: problema, escopo, ordem de leitura
+│   ├── requirements.md                    ← template: EARS, NFRs, restrições
+│   ├── contracts.md                       ← template: endpoints, modelo de dados, eventos
+│   ├── acceptance.md                      ← template: Gherkin, casos de borda, suposições
+│   ├── plan.md                            ← template: decisões + rationale + alternativas
+│   └── tasks.md                           ← template: INVEST tasks com estado [ ]/[x]
+│
+├── workspace/                             ← projetos clonados (NÃO versionados aqui)
+│   └── microservico-pagamento/            ← exemplo incluso — projeto completo
+│       ├── sdd/                           ← specs versionadas junto com o código
+│       │   ├── spec.md / requirements.md / contracts.md
+│       │   ├── acceptance.md / plan.md / tasks.md
+│       ├── src/                           ← código gerado pelo agente
+│       └── tests/
+│
+├── Fluxo.md                               ← explicação da ordem de leitura da sdd/
+├── vibe-code-vs-sdd-governance.canvas     ← diagrama: Vibe Code vs Governança de IA
+└── vault-reading-graph.canvas             ← grafo de dependências dos documentos
 ```
 
 ---
@@ -456,15 +484,15 @@ O sistema tem um mecanismo formal de evolução que evita que os patterns se tor
 
 ### Promovendo um padrão novo
 
-Quando uma decisão técnica se repete em dois ou mais projetos, ela deve ser promovida de `plan.md` de um projeto específico para `patterns/`:
+Quando uma decisão técnica se repete em dois ou mais projetos, ela deve ser promovida de `plan.md` de um projeto específico para `engineering-playbooks/`:
 
 1. **Identificar:** a decisão aparece em `plan.md` de dois projetos diferentes
 2. **Propor:** escrever um ADR em `docs/adr/` descrevendo o padrão
 3. **Revisar:** aprovação do arquiteto responsável
-4. **Publicar:** mover a decisão para o arquivo `.md` adequado em `patterns/`
-5. **Referenciar:** os projetos que já implementaram atualizam seus `plan.md` para `[[patterns/novo-pattern]]`
+4. **Publicar:** mover a decisão para o arquivo `.md` adequado em `engineering-playbooks/`
+5. **Referenciar:** os projetos que já implementaram atualizam seus `plan.md` para `[[nome-do-novo-playbook]]`
 
-> *Exemplo real no projeto incluso:* `plan.md` do microserviço de pagamentos documenta: *"Quando este padrão de SQS se repetir em outro serviço, promover para `patterns/events.md` via ADR."*
+> *Exemplo real no projeto incluso:* `plan.md` do microserviço de pagamentos documenta: *"Quando este padrão de SQS se repetir em outro serviço, promover para `engineering-playbooks/events.md` via ADR."*
 
 ---
 
@@ -481,7 +509,7 @@ workspace/
 ```
 
 **E se um projeto não usar TypeScript/Node?**
-A `constitution.md` define TypeScript como linguagem principal. Projetos em outra stack precisam de aprovação do arquiteto e registro de ADR. Os patterns podem ser criados para outras stacks sem alterar a constitution.
+A seção [[stack]] da constitution define TypeScript como linguagem principal. Projetos em outra stack precisam de aprovação do arquiteto e registro de ADR (ver [[governance]]). Novos `engineering-playbooks/` podem ser criados para outras stacks sem alterar a constitution.
 
 **Posso usar sem Obsidian?**
 Sim. Os links `[[nome-do-arquivo]]` são convenção do Obsidian, mas os documentos são Markdown puro e legíveis em qualquer editor. O agente de IA segue os links pelo nome do arquivo, não pela resolução do Obsidian. O Obsidian é recomendado para **navegação e validação humana** dos links.
@@ -546,11 +574,14 @@ O eng-blueprint posiciona sua engenharia do lado certo dessas tendências: veloc
 
 ## Roadmap
 
-- [ ] Template de spec para novos projetos (comando de scaffolding)
-- [ ] Pattern para banco de dados (`patterns/database.md`)
-- [ ] Pattern para filas de eventos (`patterns/events.md`)
-- [ ] Pattern para autenticação (`patterns/auth.md`)
-- [ ] Guia de criação de ADR (`docs/adr/template.md`)
+- [x] Template de spec para novos projetos (`sdd-template/`)
+- [x] Constitution quebrada em seções linkadas (`constitution.md/`)
+- [x] Engineering Playbooks com README explicativo (`engineering-playbooks/`)
+- [ ] Playbook para banco de dados (`engineering-playbooks/database.md`)
+- [ ] Playbook para filas de eventos (`engineering-playbooks/events.md`)
+- [ ] Playbook para autenticação (`engineering-playbooks/auth.md`)
+- [ ] Template de ADR (`docs/adr/template.md`)
+- [ ] `.gitignore` do vault ignorando `workspace/`
 - [ ] Integração com CI/CD para validar links de spec antes do merge
 
 ---
