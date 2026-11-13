@@ -1,0 +1,20 @@
+antifraude/3ds-procedimento.md	Cliente reclama que o pop-up do banco pedindo confirmação extra na compra no cartão não aparece e a venda trava; o que a gente faz passo a passo?
+antifraude/blocklist-responsavel.md	Preciso saber quem é o time que cuida de bloquear cliente caloteiro e qual o telefone de plantão deles.
+antifraude/velocity-config.md	Quantas tentativas seguidas uma pessoa pode fazer em poucos minutos antes do sistema barrar, e onde mexo nisso?
+conciliacao/chargeback-limite.md	Quantas contestações de compra por minuto o sistema aguenta em produção antes de começar a recusar?
+conciliacao/cnab-prazo.md	Mandei o arquivo de cobrança pro banco e deu problema; em quanto tempo vocês me respondem depois que abro o chamado?
+conciliacao/conciliacao-bancaria-procedimento.md	O extrato do banco não bate com o nosso financeiro e ninguém sabe por quê; como investigo e quando escalo para incidente?
+conciliacao/liquidacao-responsavel.md	Meu dinheiro das vendas de ontem ainda não caiu no dia seguinte; com quem eu falo sobre esse repasse?
+observabilidade/post-mortem-config.md	Quantas vezes o sistema tenta de novo a análise pós-incidente antes de desistir, e qual era o valor original?
+observabilidade/slo-limite.md	Qual é a capacidade máxima por minuto do controle de metas de disponibilidade do serviço em produção?
+observabilidade/tracing-prazo.md	O rastreamento de uma requisição passando por vários sistemas está com defeito; quantas horas tenho de espera pela solução?
+pagamentos/estorno-procedimento.md	Um cliente pediu o dinheiro de volta de uma compra e a devolução ficou parada; que passos sigo e quando abro incidente?
+pagamentos/idempotencia-responsavel.md	Fiz o mesmo pedido de cobrança duas vezes por engano e saiu cobrança dobrada; qual time cuida da proteção contra repetição e como falo com eles?
+pagamentos/tokenizacao-config.md	Até quantas vezes se pode tentar trocar o número do cartão por um código seguro antes de dar erro, e qual o padrão?
+plataforma/circuit-breaker-limite.md	Quantas chamadas por minuto o mecanismo que corta o serviço quando o vizinho cai suporta antes de limitar?
+plataforma/dlq-prazo.md	Quanto tempo leva para resolverem um problema com aquelas mensagens que falharam e foram parar numa fila de descarte?
+plataforma/feature-flag-procedimento.md	A chave que liga e desliga funcionalidades parou de responder; o que reinicio e em quanto tempo viro incidente?
+plataforma/rate-limit-responsavel.md	Meu sistema está sendo barrado por excesso de requisições; qual time posso acionar e qual o ramal?
+seguranca/mascaramento-config.md	Em que valor está configurada a quantidade de tentativas para esconder dados pessoais dos clientes nos registros, e qual o padrão antigo?
+seguranca/rotacao-chaves-limite.md	Quantas trocas de senhas e códigos secretos de criptografia o sistema consegue fazer por minuto em produção?
+seguranca/segredos-prazo.md	Esqueci onde guardamos as senhas de integração e ficou inacessível; em quantas horas o suporte me atende?

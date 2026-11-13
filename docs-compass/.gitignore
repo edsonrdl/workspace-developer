@@ -1,0 +1,11 @@
+# Configuração local do Obsidian (cada pessoa tem a sua)
+.obsidian/
+corpus/.obsidian/
+
+# Logs e saídas locais
+lab/sim/console.txt
+uso.log
+*.log
+
+# Arquivos locais do Claude Code
+.claude/settings.local.json
