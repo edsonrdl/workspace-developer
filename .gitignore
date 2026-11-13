@@ -1,0 +1,21 @@
+# Clones dos repositórios da empresa: cada um tem o seu próprio remoto e NÃO entra aqui
+/repos-project/*/*/
+
+# Entrada temporária: o que chega é movido para a pasta da história pela skill /wi-ingest
+/work-items/_entrada/*
+!/work-items/_entrada/.gitkeep
+!/work-items/_entrada/LEIA-ME.md
+
+# Dados de teste e arquivos locais
+/work-items/_sandbox-testes/
+**/_teste-local/
+/.obsidian/
+**/.obsidian/workspace
+**/.obsidian/workspace.json
+**/.obsidian/cache
+**/.trash/
+
+# Dependências e artefatos
+node_modules/
+dist/
+coverage/
