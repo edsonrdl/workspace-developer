@@ -1,6 +1,6 @@
 # SDD — {{ID}} {{slug}}
 
-- **WI:** `../../../work-items/{{ID}}-{{slug}}/brief.md`
+- **WI:** `../../../../../work-items/{{ID}}-{{slug}}/brief.md`
 - **Tier:** lite · **Estado:** planejado
 
 ## Objetivo (1–2 linhas)

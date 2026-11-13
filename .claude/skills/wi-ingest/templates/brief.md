@@ -1,6 +1,6 @@
 # {{ID}} — {{Título}}
 
-- **Origem:** `inbox/{{arquivo}}` · recebido em {{AAAA-MM-DD}}
+- **Origem:** `docs-compass/{{arquivo}}` · recebido em {{AAAA-MM-DD}}
 - **Status:** ideia | refinada | em-execução | entregue | arquivada
 - **Solicitante/stakeholders:** {{quem}}
 

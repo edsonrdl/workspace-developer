@@ -24,25 +24,28 @@
 ## 2. Modelo proposto — 3 camadas independentes
 
 ```
-workspace-developer/developer/
+workspace-developer/
 ├── ai-driven-engineering-blueprint/   ← ESTE repo: regras, playbooks, templates, scripts (versionado)
+├── docs-compass/                      ← ENTRADA: docs de negócio recebidas (repo próprio)
 ├── work-items/                        ← NEGÓCIO: tarefas/histórias/oportunidades (repo próprio, versionado)
-│   └── 2026-001-checkout-pix/
+│   └── HU-142-pagamento-pix/
 │       ├── brief.md                   ← problema, valor, critérios de negócio, status
 │       ├── repos.md                   ← quais repos são afetados e onde está o SDD de cada um
 │       └── decisions.md               ← (opcional) decisões de negócio / contexto de reunião
-└── repos-business/                    ← CÓDIGO: clones (não versionados aqui)
-    ├── repo-nucea/
-    │   └── sdd/2026-001-checkout-pix/ ← SDD de implementação, versionado COM o código
-    └── repo-xyz/
+└── repos-project/                     ← CÓDIGO: clones por tipo (não versionados aqui)
+    ├── apis/
+    ├── microservices/
+    │   └── repo-nucea/
+    │       └── sdd/HU-142-pagamento-pix/ ← SDD de implementação, versionado COM o código
+    └── …
 ```
 
 **Regra de ouro:** o work-item não conhece código; o SDD não conhece negócio além de um link.
 
 - **Work-item** = *o quê e por quê* (negócio). Nasce sem projeto algum, só com ID + slug. Evolui sozinho.
-- **SDD** = *como* (implementação) em **um** repo. Referencia o work-item pelo ID (`WI: 2026-001`).
+- **SDD** = *como* (implementação) em **um** repo. Referencia o work-item pelo ID (`WI: HU-142`).
 - **Ligação** = `repos.md` do work-item (tabela alias → caminho relativo → pasta do SDD → branch → status). Um work-item pode gerar N SDDs (um por repo).
-- **Aliases** em um `repos-registry.md` (ou `.yaml`) no blueprint: `nucea → ../repos-business/repo-nucea`. Se você mover um clone, muda uma linha.
+- **Aliases** em um `repos-registry.md` (ou `.yaml`) no blueprint: `nucea → ../repos-project/microservices/repo-nucea`. Se você mover um clone, muda uma linha.
 
 Por que o SDD fica no repo (e não no work-item): ele versiona junto com o código no PR — decisão já correta no vault atual; mantém-se.
 
@@ -134,8 +137,8 @@ Depois: **skills/slash commands** do Claude Code (`/wi-new`, `/sdd-plan`, `/sdd-
 - [x] `Fluxo.md` → `docs/ordem-de-leitura.md`
 - [x] Remover menções a `workspace/` e `microservico-pagamento/` inexistentes; `.gitignore` atualizado
 - [ ] Decidir: achatar `eng-blueprint/` interno? (adiado → Fase 1, decisão em aberto 3)
-- [ ] Revisar `.canvas` (legenda ainda cita "workspace"; atualizar quando o modelo de work-items existir — Fase 2)
-- Pendência menor: `constitution/governance.md` ainda descreve "Novo projeto em `repos-business/`" como regra de aprovação — revisar na condensação da constitution (Fase 1).
+- [x] `.canvas` atualizados (legenda, nomes de pastas) e novo `workspace-pastas.canvas` com layout e fluxo (2026-11-13)
+- Pendência menor: `constitution/governance.md` cita `repos-project/` como regra de aprovação — revisar na condensação da constitution (Fase 1).
 
 ### Fase 1 — Contexto enxuto · **pendente**
 - [ ] `AGENTS.md` (+ `CLAUDE.md` apontando para ele)
@@ -169,8 +172,9 @@ Depois: **skills/slash commands** do Claude Code (`/wi-new`, `/sdd-plan`, `/sdd-
 Ver [docs/relatorio-abordagens.md](docs/relatorio-abordagens.md). Decisão: **A (convenção + scripts) como fundação; B (skills/hook) por cima após piloto; C (OpenSpec) só em observação.** Nova ordem: Fase 1 → 2 → 3 (tiers com delta) → **5 (piloto manual + medição)** → 4a (scripts) → 4b (skills/hook).
 
 ## 6c. Ingestão de docs de negócio (2026-11-13)
-Skill `/wi-ingest` em `.claude/skills/wi-ingest/` (raiz do repo): doc humanizada (Word/PDF/MD) em `../inbox/` → `work-items/<ID>-<slug>/{brief,source,repos}.md` → SDD lite/standard no repo alvo, com dois gates humanos (após o brief; após o SDD) e sem implementar.
-- **Convenção de nome no inbox:** `AAAA-MM-DD_<ID>_<slug>.<ext>`, ex. `2026-11-13_HU-142_pagamento-pix.docx`.
+Nomes de pastas definidos em 2026-11-13: `repos-project/<tipo>/<repo>` (tipos: `apis`, `microservices`, ...), `docs-compass/` (repo de entrada; localmente a pasta ainda se chama `solucao-doc-brq`) e raiz `workspace-developer/`. Layout visual em `workspace-pastas.canvas`.
+Skill `/wi-ingest` em `.claude/skills/wi-ingest/` (raiz do repo): doc humanizada (Word/PDF/MD) em `../docs-compass/` → `work-items/<ID>-<slug>/{brief,source,repos}.md` → SDD lite/standard no repo alvo, com dois gates humanos (após o brief; após o SDD) e sem implementar.
+- **Convenção de nome em `docs-compass/`:** `AAAA-MM-DD_<ID>_<slug>.<ext>`, ex. `2026-11-13_HU-142_pagamento-pix.docx`.
 - **Mudança de decisão:** o ID do work-item passa a ser o **ID externo da história** (`HU-142-pagamento-pix`) em vez de `2026-001-…`; rastreia direto ao tracker.
 - Extrator de `.docx` sem dependências (PowerShell), testado com `.docx` sintético (acentos, lista, tabela). **Não testado ainda** rodando a skill inteira no Claude Code nem com um Word real do seu fluxo → entra no piloto (Fase 5).
 - Limites: `.docx` com imagens/diagramas, comentários e controle de alterações não são lidos; `.pdf` depende do leitor do Claude.

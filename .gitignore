@@ -1,4 +1,4 @@
-# Clones de repositórios de negócio ficam fora do vault (pasta irmã: ../repos-business)
+# Clones de repositórios de negócio ficam fora do vault (pasta irmã: ../repos-project/<tipo>/<repo>)
 # Work items ficam em repo próprio (pasta irmã: ../work-items)
 
 # Obsidian — estado local da UI, não faz parte do vault versionado

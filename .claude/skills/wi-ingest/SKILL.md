@@ -1,6 +1,6 @@
 ---
 name: wi-ingest
-description: Converte a doc de negócio de uma história (Word/PDF/MD na pasta inbox) em work-item (brief) e, se pedido, em SDD técnico dentro do repo alvo. Uso manual.
+description: Converte a doc de negócio de uma história (Word/PDF/MD no repo docs-compass) em work-item (brief) e, se pedido, em SDD técnico dentro do repo alvo. Uso manual.
 argument-hint: <ID da história ou nome do arquivo> [alias-do-repo] [lite|standard]
 disable-model-invocation: true
 allowed-tools: Read Write Edit Glob Grep Bash(powershell *) Bash(git *)
@@ -11,13 +11,13 @@ allowed-tools: Read Write Edit Glob Grep Bash(powershell *) Bash(git *)
 Argumentos: `$ARGUMENTS` → 1º = ID da história (`HU-142`) ou nome do arquivo; 2º (opcional) = alias do repo; 3º (opcional) = tier (`lite` padrão, `standard`).
 
 ## Pastas (relativas à raiz deste repo; pastas irmãs)
-- `../inbox/` — docs recebidas. Nome: `AAAA-MM-DD_<ID>_<slug>.<ext>` (ex.: `2026-11-13_HU-142_pagamento-pix.docx`). O **ID** é o da história no seu tracker; a data é a de recebimento.
+- `../docs-compass/` — repo com as docs de negócio recebidas (pode ter subpastas; busque recursivamente). Se ainda não existir com esse nome, tente `../solucao-doc-brq/` (nome local antigo). Nome: `AAAA-MM-DD_<ID>_<slug>.<ext>` (ex.: `2026-11-13_HU-142_pagamento-pix.docx`). O **ID** é o da história no seu tracker; a data é a de recebimento.
 - `../work-items/<ID>-<slug>/` — saída de negócio: `brief.md`, `source.md`, `repos.md`.
-- `../repos-business/<alias>/sdd/<ID>-<slug>/` — saída técnica (versionada com o código).
+- `../repos-project/<tipo>/<alias>/sdd/<ID>-<slug>/` (tipo = `apis`, `microservices`, …) — saída técnica (versionada com o código).
 
 ## Passos
 
-1. **Localizar** o arquivo em `../inbox/` pelo ID (`*_<ID>_*`). Se houver mais de uma versão, use a de data mais recente e avise. Nenhum achado → pare e liste o inbox.
+1. **Localizar** o arquivo em `../docs-compass/` (Glob `../docs-compass/**/*<ID>*`). Se houver mais de uma versão, use a de data mais recente e avise. Nenhum achado → pare e liste os candidatos mais recentes.
 2. **Extrair texto uma vez** para `../work-items/<ID>-<slug>/source.md`:
    - `.docx`: `powershell -NoProfile -ExecutionPolicy Bypass -File .claude/skills/wi-ingest/extract-docx.ps1 -Path <arquivo> -Out <source.md>`
    - `.md`/`.txt`: copie. `.pdf`: use a leitura de PDF do Read; se falhar, peça o texto.
@@ -28,9 +28,9 @@ Argumentos: `$ARGUMENTS` → 1º = ID da história (`HU-142`) ou nome do arquivo
    - Preserve os números e termos do negócio literalmente (prazos, valores, nomes de status).
    - Registre a origem: arquivo, data, ID.
 4. **Parar e mostrar** ao usuário: resumo do brief + lista de `NEEDS CLARIFICATION`. Se houver pendências que bloqueiem o escopo, peça respostas antes de seguir. (Gate HITL 1.)
-5. **Escolher o repo.** Sem alias no argumento, pergunte (ou use `repos.md` se já existir). Confirme que `../repos-business/<alias>/` existe.
+5. **Escolher o repo.** Sem alias no argumento, pergunte (ou use `repos.md` se já existir). Localize o clone com Glob `../repos-project/*/<alias>`; se não achar ou houver mais de um, pergunte.
 6. **Investigar o repo de forma barata:** `Glob`/`Grep` por termos do brief para achar onde mexer; leia só os arquivos relevantes. Leia o `AGENTS.md`/`CLAUDE.md` do repo se existir e a [constitution](../../../eng-blueprint/constitution/constitution.md) apenas nas seções aplicáveis.
-7. **Escrever o SDD** em `../repos-business/<alias>/sdd/<ID>-<slug>/` com `templates/sdd-lite.md` (ou, em `standard`, separe em `spec.md`/`plan.md`/`tasks.md`). Deve ter:
+7. **Escrever o SDD** em `../repos-project/<tipo>/<alias>/sdd/<ID>-<slug>/` (tipo = `apis`, `microservices`, …) com `templates/sdd-lite.md` (ou, em `standard`, separe em `spec.md`/`plan.md`/`tasks.md`). Deve ter:
    - **Delta:** `ADDED / MODIFIED / REMOVED` + **O que NÃO muda**.
    - **Aceite** em Dado/Quando/Então, cada um apontando para a `RN-n` do brief.
    - **Context pack:** os arquivos de código que o agente deve ler (caminho + por quê).
@@ -44,5 +44,5 @@ Mais de um módulo/serviço, contrato novo (API/evento), migração de dados ou 
 
 ## Não fazer
 - Não copie o documento inteiro para dentro do SDD; referencie `RN-n`.
-- Não edite o arquivo original do inbox.
+- Não edite o arquivo original em `docs-compass/`.
 - Não crie commits nem branches.

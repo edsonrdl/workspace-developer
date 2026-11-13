@@ -12,7 +12,7 @@ Quando uma decisão técnica se repete em dois ou mais projetos:
 
 ## Os clones precisam ficar dentro do vault?
 
-Não mais. No modelo atual os clones ficam em `repos-business/`, pasta irmã deste vault. Os links `[[ ]]` do Obsidian só resolvem dentro do vault; o agente segue pelo nome do arquivo ou por caminho relativo. Decisão sobre wikilinks vs. links relativos: ver "Decisões em aberto" no [PLANO.md](../PLANO.md).
+Não mais. No modelo atual os clones ficam em `repos-project/`, pasta irmã deste vault. Os links `[[ ]]` do Obsidian só resolvem dentro do vault; o agente segue pelo nome do arquivo ou por caminho relativo. Decisão sobre wikilinks vs. links relativos: ver "Decisões em aberto" no [PLANO.md](../PLANO.md).
 
 ## E se um projeto não usar TypeScript/Node?
 

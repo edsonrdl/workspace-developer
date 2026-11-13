@@ -54,4 +54,4 @@ Quando uma decisão em `sdd/plan.md` se repete em dois ou mais projetos:
 | Nova seção na `constitution/` | Arquiteto principal |
 | Novo arquivo em `playbooks/` | Arquiteto responsável pela área |
 | Mudança em `sdd/` de um projeto | Tech lead do projeto |
-| Novo projeto em `repos-business/` | Qualquer dev — não requer aprovação |
+| Novo projeto em `repos-project/` | Qualquer dev — não requer aprovação |

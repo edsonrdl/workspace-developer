@@ -19,13 +19,32 @@ eng-blueprint/
 └── *.canvas        ← diagramas para o Obsidian
 ```
 
-Camadas (alvo, ver [PLANO.md](PLANO.md)):
+## Pastas fora deste repo (irmãs, no mesmo nível)
 
-| Camada | Onde | Contém |
+```
+workspace-developer/
+├── ai-driven-engineering-blueprint/   ← ESTE repo (regras, playbooks, templates, skills)
+├── docs-compass/                      ← docs de negócio recebidas (repo próprio)
+├── work-items/                        ← tarefas/histórias/oportunidades (repo git próprio)
+└── repos-project/                     ← clones dos repos da empresa, por tipo
+    ├── apis/
+    │   └── api-exemplo/
+    ├── microservices/
+    │   └── repo-nucea/
+    │       └── sdd/<ID>-<slug>/       ← SDD de cada mudança, versionado com o código
+    └── …                              ← novos tipos conforme evoluir
+```
+
+`work-items/` e `repos-project/` ainda não existem; serão criadas na Fase 2 do [PLANO.md](PLANO.md) (ou na primeira execução de `/wi-ingest`). `docs-compass/` é um repo existente; localmente a pasta ainda se chama `solucao-doc-brq` até ser renomeada. Os caminhos da skill são relativos à raiz deste repo: `../docs-compass`, `../work-items`, `../repos-project`.
+
+| Camada | Pasta | Contém |
 |---|---|---|
-| Negócio | `work-items/` (pasta irmã, a criar) | tarefas, histórias, oportunidades — independentes de projeto |
-| Código | `repos-business/<repo>/` (clones, não versionados aqui) | código + `sdd/` de cada mudança |
-| Regras | este vault | constitution, playbooks, templates |
+| Entrada | `docs-compass/` | docs humanizadas; nome `AAAA-MM-DD_<ID>_<slug>.<ext>` |
+| Negócio | `work-items/<ID>-<slug>/` | `brief.md`, `source.md`, `repos.md` — independentes de projeto |
+| Código | `repos-project/<tipo>/<repo>/` | clones (não versionados aqui) + `sdd/` de cada mudança |
+| Regras | este repo | constitution, playbooks, templates, skill `/wi-ingest` |
+
+Fluxo: `docs-compass/` → `/wi-ingest` → `work-items/` → `sdd/` no repo → implementação.
 
 ---
 
