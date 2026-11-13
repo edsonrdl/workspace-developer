@@ -165,6 +165,16 @@ Depois: **skills/slash commands** do Claude Code (`/wi-new`, `/sdd-plan`, `/sdd-
 
 ---
 
+## 6b. Revisão após comparar abordagens (2026-11-13)
+Ver [docs/relatorio-abordagens.md](docs/relatorio-abordagens.md). Decisão: **A (convenção + scripts) como fundação; B (skills/hook) por cima após piloto; C (OpenSpec) só em observação.** Nova ordem: Fase 1 → 2 → 3 (tiers com delta) → **5 (piloto manual + medição)** → 4a (scripts) → 4b (skills/hook).
+
+## 6c. Ingestão de docs de negócio (2026-11-13)
+Skill `/wi-ingest` em `.claude/skills/wi-ingest/` (raiz do repo): doc humanizada (Word/PDF/MD) em `../inbox/` → `work-items/<ID>-<slug>/{brief,source,repos}.md` → SDD lite/standard no repo alvo, com dois gates humanos (após o brief; após o SDD) e sem implementar.
+- **Convenção de nome no inbox:** `AAAA-MM-DD_<ID>_<slug>.<ext>`, ex. `2026-11-13_HU-142_pagamento-pix.docx`.
+- **Mudança de decisão:** o ID do work-item passa a ser o **ID externo da história** (`HU-142-pagamento-pix`) em vez de `2026-001-…`; rastreia direto ao tracker.
+- Extrator de `.docx` sem dependências (PowerShell), testado com `.docx` sintético (acentos, lista, tabela). **Não testado ainda** rodando a skill inteira no Claude Code nem com um Word real do seu fluxo → entra no piloto (Fase 5).
+- Limites: `.docx` com imagens/diagramas, comentários e controle de alterações não são lidos; `.pdf` depende do leitor do Claude.
+
 ## 7. Decisões em aberto
 1. Scripts em **PowerShell**, Node ou Python?
 2. `work-items/` como **repo git próprio** (recomendo) ou dentro deste?
