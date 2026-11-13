@@ -1,10 +1,10 @@
 # {{ID}} — {{Título}}
 
-- **Origem:** `docs-compass/{{arquivo}}` · recebido em {{AAAA-MM-DD}}
+- **Original recebido:** `original.{{ext}}` (nesta pasta) · recebido em {{AAAA-MM-DD}}
 - **Status:** ideia (inicial) | refinada | em-execução | entregue | arquivada
 - **Solicitante/stakeholders:** {{quem, ou "não informado"}}
 
-> Campo que o documento não traz: escreva `não informado`. Não invente e não vire dúvida, a menos que seja necessário para o aceite.
+> Refinamento de **negócio**. Sem código, sem nome de classe ou tabela. Campo que o documento não traz: `não informado`.
 
 ## Problema
 {{dor atual, concreta, em 2–4 linhas}}
@@ -24,6 +24,3 @@
 
 ## Dúvidas abertas
 - [NEEDS CLARIFICATION — bloqueante | aberta | respondida: {{resposta}} | assumida: {{o que foi assumido}}] {{pergunta}}
-
-## Implementação
-- {{alias}} → `{{tipo}}/{{alias}}/sdd/{{ID}}-{{slug}}/` · estado: planejado

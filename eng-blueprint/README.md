@@ -24,27 +24,29 @@ eng-blueprint/
 ```
 workspace-developer/
 ├── ai-driven-engineering-blueprint/   ← ESTE repo (regras, playbooks, templates, skills)
-├── docs-compass/                      ← docs de negócio recebidas (repo próprio)
-├── work-items/                        ← tarefas/histórias/oportunidades (repo git próprio)
-└── repos-project/                     ← clones dos repos da empresa, por tipo
-    ├── apis/
-    │   └── api-exemplo/
-    ├── microservices/
-    │   └── repo-nucea/
-    │       └── sdd/<ID>-<slug>/       ← SDD de cada mudança, versionado com o código
-    └── …                              ← novos tipos conforme evoluir
+├── work-items/                        ← a HISTÓRIA: recebido + refinamento + SDDs (repo git próprio)
+│   ├── _entrada/                      ← onde você solta o que recebeu
+│   ├── _EXEMPLO-HU-142-pagamento-pix/ ← exemplo completo (abra este para ver a camada)
+│   └── <ID>-<slug>/
+│       ├── refinamento/               ← original.*, source.md, refinamento.md (negócio)
+│       └── sdd/<repo>/                ← um SDD por repo afetado, com repo.md apontando para o clone
+├── repos-project/                     ← clones, por tipo: o código é escrito AQUI
+│   ├── apis/<repo>/
+│   └── microservices/<repo>/
+└── docs-compass/                      ← diretório de documentação (governo/time); fora do fluxo de histórias
 ```
 
-`work-items/` e `repos-project/` ainda não existem; serão criadas na Fase 2 do [PLANO.md](PLANO.md) (ou na primeira execução de `/wi-ingest`). `docs-compass/` é um repo existente; localmente a pasta ainda se chama `solucao-doc-brq` até ser renomeada. Os caminhos da skill são relativos à raiz deste repo: `../docs-compass`, `../work-items`, `../repos-project`.
+O SDD **fica com a história** e **aponta** para o repo de código (`repo.md`). Detalhes e exemplo: [work-items/README.md](../../work-items/README.md) (pasta irmã, fora deste repo).
 
 | Camada | Pasta | Contém |
 |---|---|---|
-| Entrada | `docs-compass/` | docs humanizadas; nome `AAAA-MM-DD_<ID>_<slug>.<ext>` |
-| Negócio | `work-items/<ID>-<slug>/` | `brief.md`, `source.md`, `repos.md` — independentes de projeto |
-| Código | `repos-project/<tipo>/<repo>/` | clones (não versionados aqui) + `sdd/` de cada mudança |
+| Recebido | `work-items/<ID>/refinamento/original.*` | o documento como chegou (Word, PDF, MD) |
+| Negócio | `work-items/<ID>/refinamento/refinamento.md` | regras `RN-n`, dúvidas, aceite de negócio |
+| Técnico | `work-items/<ID>/sdd/<repo>/` | SDD para a IA implementar naquele repo |
+| Código | `repos-project/<tipo>/<repo>/` | clones (não versionados aqui) |
 | Regras | este repo | constitution, playbooks, templates, skill `/wi-ingest` |
 
-Fluxo: `docs-compass/` → `/wi-ingest` → `work-items/` → `sdd/` no repo → implementação.
+Fluxo: `_entrada/` → `/wi-ingest` → `refinamento/` + `sdd/<repo>/` → a IA implementa no repo de `repo.md`.
 
 ---
 

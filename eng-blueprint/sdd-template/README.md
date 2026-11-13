@@ -1,15 +1,15 @@
 # sdd-template — Como usar
 
 > Template geral de Spec-Driven Development para usar com agentes de IA.
-> Copie esta pasta para a raiz do seu projeto como `sdd/`, preencha os arquivos na ordem abaixo e instrua o agente com um único comando.
+> Copie esta pasta para `work-items/<ID>/sdd/<repo>/` (a skill `/wi-ingest` faz isso para os tiers menores), preencha os arquivos na ordem abaixo e instrua o agente com um único comando. O SDD fica com a história e aponta para o repo em `repo.md`.
 
 ---
 
 ## Como aplicar em um novo projeto
 
 ```bash
-# 1. Copie o template para a raiz do seu projeto
-cp -r sdd-template/ seu-projeto/sdd/
+# 1. Copie o template para a pasta da história
+cp -r sdd-template/ ../work-items/HU-142-slug/sdd/nome-do-repo/
 
 # 2. Preencha os arquivos na ordem obrigatória
 # 3. Abra no Obsidian para validar os links

@@ -1,16 +1,19 @@
 {
 	"nodes":[
-		{"id":"title","type":"text","text":"# Workspace — pastas e fluxo\n## workspace-developer/","x":-700,"y":-300,"width":1260,"height":100},
-		{"id":"n-docs","type":"text","text":"**docs-compass/**\nrepo existente\ndocs de negócio recebidas\n`AAAA-MM-DD_<ID>_<slug>.docx`","x":-700,"y":-100,"width":300,"height":140,"color":"5"},
-		{"id":"n-wi","type":"text","text":"**work-items/**\nrepo próprio\n`<ID>-<slug>/`\nbrief.md · source.md · repos.md\n*(negócio, sem código)*","x":-250,"y":-100,"width":320,"height":160,"color":"3"},
-		{"id":"n-repos","type":"text","text":"**repos-project/**\nclones por tipo\n`apis/` · `microservices/` · …\n`<tipo>/<repo>/sdd/<ID>-<slug>/`\n*(SDD versionado com o código)*","x":230,"y":-100,"width":330,"height":180,"color":"1"},
-		{"id":"n-bp","type":"text","text":"**ai-driven-engineering-blueprint/**\nconstitution/ · playbooks/ · sdd-template/\nskill `/wi-ingest` · scripts (futuro)","x":-250,"y":230,"width":560,"height":120,"color":"6"},
-		{"id":"t-legend","type":"text","text":"HITL 1: revisão do brief e das dúvidas · HITL 2: revisão do SDD antes de implementar\nO agente só implementa depois do segundo gate.","x":-700,"y":420,"width":1260,"height":70}
+		{"id":"title","type":"text","text":"# A camada da história\n## workspace-developer/","x":-760,"y":-360,"width":1500,"height":100},
+		{"id":"n-entrada","type":"text","text":"**work-items/_entrada/**\nvocê solta o que recebeu\n`AAAA-MM-DD_<ID>_<slug>.docx|pdf|md`","x":-760,"y":-160,"width":300,"height":140,"color":"5"},
+		{"id":"n-ref","type":"text","text":"**work-items/<ID>-<slug>/refinamento/**\noriginal.* (como chegou)\nsource.md (texto extraído)\n**refinamento.md** (negócio: RN-n, dúvidas)","x":-360,"y":-160,"width":380,"height":160,"color":"3"},
+		{"id":"n-sdd","type":"text","text":"**work-items/<ID>-<slug>/sdd/**\n**um SDD por repo afetado**\n`api-pagamentos/` → repo.md + spec · plan · tasks\n`worker-notificacoes/` → repo.md + sdd.md","x":120,"y":-160,"width":400,"height":160,"color":"6"},
+		{"id":"n-repos","type":"text","text":"**repos-project/<tipo>/<repo>/**\napis/ · microservices/ · …\n**o código é escrito AQUI**","x":120,"y":160,"width":400,"height":130,"color":"1"},
+		{"id":"n-bp","type":"text","text":"**ai-driven-engineering-blueprint/**\nconstitution · playbooks · sdd-template\nskill `/wi-ingest`","x":-760,"y":160,"width":420,"height":130,"color":"4"},
+		{"id":"n-docs","type":"text","text":"**docs-compass/**\ndiretório de documentação (governo/time)\nfora do fluxo de histórias","x":600,"y":-160,"width":260,"height":140},
+		{"id":"t-legend","type":"text","text":"Gate 1: revisar o refinamento e as dúvidas · Gate 2: revisar o SDD antes de implementar\nO SDD fica com a história e aponta para o repo (repo.md); não é copiado para lá.","x":-760,"y":360,"width":1620,"height":80}
 	],
 	"edges":[
-		{"id":"e-docs-wi","fromNode":"n-docs","fromSide":"right","toNode":"n-wi","toSide":"left","label":"/wi-ingest → brief"},
-		{"id":"e-wi-repos","fromNode":"n-wi","fromSide":"right","toNode":"n-repos","toSide":"left","label":"SDD (um por repo)"},
-		{"id":"e-bp-wi","fromNode":"n-bp","fromSide":"top","toNode":"n-wi","toSide":"bottom","color":"6","label":"templates + skill"},
-		{"id":"e-bp-repos","fromNode":"n-bp","fromSide":"right","toNode":"n-repos","toSide":"bottom","color":"6","label":"constitution + playbooks"}
+		{"id":"e1","fromNode":"n-entrada","fromSide":"right","toNode":"n-ref","toSide":"left","label":"/wi-ingest (move + extrai)"},
+		{"id":"e2","fromNode":"n-ref","fromSide":"right","toNode":"n-sdd","toSide":"left","label":"traduz para técnico"},
+		{"id":"e3","fromNode":"n-sdd","fromSide":"bottom","toNode":"n-repos","toSide":"top","color":"6","label":"repo.md aponta; a IA implementa"},
+		{"id":"e4","fromNode":"n-bp","fromSide":"top","toNode":"n-ref","toSide":"bottom","color":"4","label":"templates + skill"},
+		{"id":"e5","fromNode":"n-bp","fromSide":"right","toNode":"n-repos","toSide":"left","color":"4","label":"constitution + playbooks"}
 	]
 }

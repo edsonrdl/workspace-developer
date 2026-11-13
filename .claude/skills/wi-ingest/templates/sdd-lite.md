@@ -1,7 +1,8 @@
 # SDD — {{ID}} {{slug}}
 
-- **Origem:** história {{ID}} (negócio fica em `work-items/`, fora deste repo; não linkar caminho)
-- **Tier:** {{lite|fix|standard}} · **Estado:** planejado
+- **Origem:** história {{ID}} · refinamento de negócio em `../../refinamento/refinamento.md` *(tier fix: `../../refinamento/original.<ext>`)*
+- **Repo alvo:** ver `repo.md` nesta pasta
+- **Tier:** {{lite|fix|standard}} · **Estado:** {{planejado | bloqueado | sem-mudança}}
 
 ## Objetivo (1–2 linhas)
 {{o que muda, sem repetir o brief}}

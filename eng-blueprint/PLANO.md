@@ -21,33 +21,36 @@
 
 ---
 
-## 2. Modelo proposto — 3 camadas independentes
+## 2. Modelo — a camada da história (revisado em 2026-11-13)
 
 ```
 workspace-developer/
-├── ai-driven-engineering-blueprint/   ← ESTE repo: regras, playbooks, templates, scripts (versionado)
-├── docs-compass/                      ← ENTRADA: docs de negócio recebidas (repo próprio)
-├── work-items/                        ← NEGÓCIO: tarefas/histórias/oportunidades (repo próprio, versionado)
-│   └── HU-142-pagamento-pix/
-│       ├── brief.md                   ← problema, valor, critérios de negócio, status
-│       ├── repos.md                   ← quais repos são afetados e onde está o SDD de cada um
-│       └── decisions.md               ← (opcional) decisões de negócio / contexto de reunião
-└── repos-project/                     ← CÓDIGO: clones por tipo (não versionados aqui)
-    ├── apis/
-    ├── microservices/
-    │   └── repo-nucea/
-    │       └── sdd/HU-142-pagamento-pix/ ← SDD de implementação, versionado COM o código
-    └── …
+├── ai-driven-engineering-blueprint/   ← ESTE repo: regras, playbooks, templates, skills
+├── work-items/                        ← repo próprio: TUDO da história
+│   ├── _entrada/                      ← onde se solta o que foi recebido
+│   └── HU-142-pagamento-pix/          ← uma pasta por história
+│       ├── README.md                  ← índice: status, links, lista de SDDs
+│       ├── refinamento/
+│       │   ├── original.docx|pdf|md   ← como chegou (não editar)
+│       │   ├── source.md              ← texto extraído (só .docx)
+│       │   └── refinamento.md         ← refinamento de NEGÓCIO (RN-n, dúvidas, aceite)
+│       └── sdd/
+│           ├── api-pagamentos/        ← um SDD por repo afetado
+│           │   ├── repo.md            ← link para repos-project/apis/api-pagamentos + branch
+│           │   └── spec.md · plan.md · tasks.md   (ou só sdd.md nos tiers lite/fix)
+│           └── worker-notificacoes/ …
+├── repos-project/                     ← clones por tipo (apis/, microservices/ …): o código é escrito AQUI
+└── docs-compass/                      ← diretório de documentação (governo/time); fora do fluxo
 ```
 
-**Regra de ouro:** o work-item não conhece código; o SDD não conhece negócio além de um link.
+**Decisão (substitui a anterior):** o SDD **fica com a história**, versionado junto do refinamento, e **aponta** para o repo de código por `repo.md`. Antes, o SDD ficava dentro de cada repo (`sdd/` no clone); foi trocado porque uma história gera **vários SDDs**, um por repo, e o refinamento precisa ser versionado junto deles.
 
-- **Work-item** = *o quê e por quê* (negócio). Nasce sem projeto algum, só com ID + slug. Evolui sozinho.
-- **SDD** = *como* (implementação) em **um** repo. Referencia o work-item pelo ID (`WI: HU-142`).
-- **Ligação** = `repos.md` do work-item (tabela alias → caminho relativo → pasta do SDD → branch → status). Um work-item pode gerar N SDDs (um por repo).
-- **Aliases** em um `repos-registry.md` (ou `.yaml`) no blueprint: `nucea → ../repos-project/microservices/repo-nucea`. Se você mover um clone, muda uma linha.
+- **Refinamento** = *o quê e por quê* (negócio), sem código.
+- **SDD** = *como*, por repo, para a IA implementar. Não é copiado para o repo.
+- **Ligação** = `repo.md` em cada `sdd/<repo>/` e a tabela de SDDs no `README.md` da história.
+- **Trade-off aceito:** o PR do repo de código não traz mais o SDD no diff. Se quiser, copie o SDD aprovado para o repo no merge.
 
-Por que o SDD fica no repo (e não no work-item): ele versiona junto com o código no PR — decisão já correta no vault atual; mantém-se.
+Exemplo completo: `work-items/_EXEMPLO-HU-142-pagamento-pix/` (pasta irmã).
 
 ---
 
@@ -172,9 +175,10 @@ Depois: **skills/slash commands** do Claude Code (`/wi-new`, `/sdd-plan`, `/sdd-
 Ver [docs/relatorio-abordagens.md](docs/relatorio-abordagens.md). Decisão: **A (convenção + scripts) como fundação; B (skills/hook) por cima após piloto; C (OpenSpec) só em observação.** Nova ordem: Fase 1 → 2 → 3 (tiers com delta) → **5 (piloto manual + medição)** → 4a (scripts) → 4b (skills/hook).
 
 ## 6c. Ingestão de docs de negócio (2026-11-13)
-Nomes de pastas definidos em 2026-11-13: `repos-project/<tipo>/<repo>` (tipos: `apis`, `microservices`, ...), `docs-compass/` (repo de entrada; localmente a pasta ainda se chama `solucao-doc-brq`) e raiz `workspace-developer/`. Layout visual em `workspace-pastas.canvas`.
-Skill `/wi-ingest` em `.claude/skills/wi-ingest/` (raiz do repo): doc humanizada (Word/PDF/MD) em `../docs-compass/` → `work-items/<ID>-<slug>/{brief,source,repos}.md` → SDD lite/standard no repo alvo, com dois gates humanos (após o brief; após o SDD) e sem implementar.
-- **Convenção de nome em `docs-compass/`:** `AAAA-MM-DD_<ID>_<slug>.<ext>`, ex. `2026-11-13_HU-142_pagamento-pix.docx`.
+Nomes de pastas (2026-11-13): `repos-project/<tipo>/<repo>` (tipos: `apis`, `microservices`, ...). `docs-compass/` **não faz parte do fluxo de histórias**: é um diretório de documentação (governo/time). Os documentos recebidos entram em `work-items/_entrada/`.
+Skill `/wi-ingest` em `.claude/skills/wi-ingest/`: documento recebido (Word/PDF/MD) em `work-items/_entrada/` → `work-items/<ID>-<slug>/refinamento/` (original, source.md, refinamento.md) → `sdd/<repo>/` com `repo.md` apontando para o clone em `repos-project/`. Dois gates humanos; não implementa.
+- **Convenção de nome em `_entrada/`:** `AAAA-MM-DD_<ID>_<slug>.<ext>`, ex. `2026-11-13_HU-142_pagamento-pix.docx`.
+- **Testes:** o reteste, a quarta rodada e o A/B usaram o layout anterior (SDD dentro do repo). O **novo layout foi retestado** (4 casos, notas 8 a 8,5; ver `docs/relatorio-abordagens.md`); as correções posteriores a esse teste ainda não foram reexecutadas.
 - **Mudança de decisão:** o ID do work-item passa a ser o **ID externo da história** (`HU-142-pagamento-pix`) em vez de `2026-001-…`; rastreia direto ao tracker.
 - Extrator de `.docx` sem dependências (PowerShell), testado com `.docx` sintético (acentos, lista, tabela). **Não testado ainda** rodando a skill inteira no Claude Code nem com um Word real do seu fluxo → entra no piloto (Fase 5).
 - Limites: imagens/diagramas e comentários de `.docx` **não são lidos, mas o extrator agora avisa** (e o aviso vira `[NEEDS CLARIFICATION]`); `.pdf` depende do leitor do Claude. Testado com `.docx` sintético (imagem, comentário, texto excluído, título, lista aninhada, arquivo travado); não testado com Word real.

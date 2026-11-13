@@ -10,11 +10,13 @@ Vault pessoal de regras e fluxo para evoluir histórias com IA. Conteúdo em `en
 - `eng-blueprint/PLANO.md` — estado e decisões. `eng-blueprint/docs/` — contexto, não leia sem necessidade.
 
 ## Pastas irmãs (fora deste repo)
-`../docs-compass/` (docs de negócio) · `../work-items/` · `../repos-project/<tipo>/<repo>/` (clones; SDD em `sdd/<ID>-<slug>/`).
+`../work-items/<ID>-<slug>/` — a história: `refinamento/` (negócio) e `sdd/<repo>/` (um SDD por repo, com `repo.md` apontando para o clone). Docs recebidos entram em `../work-items/_entrada/`.
+`../repos-project/<tipo>/<repo>/` — clones; o código é escrito aqui, guiado pelo SDD que fica em `work-items`.
+`../docs-compass/` — diretório de documentação (governo/time); **não** faz parte do fluxo de histórias.
 
 ## Regras
 1. Não invente regra de negócio: lacuna vira `[NEEDS CLARIFICATION: …]`.
-2. Brief = só negócio. SDD = só implementação, com delta e "o que NÃO muda".
+2. Refinamento = só negócio. SDD = só implementação, com delta e "o que NÃO muda", e aponta para o repo em `repo.md`.
 3. Dois gates humanos: depois do brief e depois do SDD. Implementar é um passo à parte.
 4. Não commite, não crie branch e não faça push sem pedido explícito.
 5. Extração de .docx: prefira PDF/MD; senão `bash .claude/skills/wi-ingest/extract-docx.sh`, senão o `.ps1`. Se bloquear, não contorne: avise o usuário.

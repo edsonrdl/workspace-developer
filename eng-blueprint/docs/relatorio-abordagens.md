@@ -158,3 +158,24 @@ Agente novo, sandbox limpo, três casos (`HU-150` docx, `HU-160` PDF, `HU-142` f
 **Ressalvas:** (1) histórias e repo falsos, uma execução por caso, um só modelo; (2) o repo falso é minúsculo: num repo real o baseline lê mais código e o custo fixo do `/wi-ingest` (skill, templates, constitution, cerca de 8 a 12 mil tokens) pesa menos; (3) B também persiste brief e SDD reutilizáveis e faz o constitution check, e A não: as saídas não são equivalentes; (4) o braço A recebeu o texto sem o que o Word esconde, o que é justamente o cenário que o teste quer medir, mas um usuário atento pode ler o comentário e a nota no Word antes de colar.
 
 **Ambiguidades do `SKILL.md` reveladas pelos três agentes B (corrigidas, não reexecutadas):** diretório do Bash reiniciado a cada chamada; formato do `vinculo.md`; "não informado" contra dúvida de negócio; status inicial do brief; campo Tier do template; ordem dos passos 5 e 8; frase vaga que não vira RN; lacuna de lint/cobertura no repo; marcação `(provável)` do local do delta.
+
+## Reteste no novo layout da camada (2026-11-13)
+
+**Contexto da mudança.** O desenho foi corrigido a pedido do usuário: o `docs-compass` deixou de ser a entrada das histórias (é um diretório de documentação de governo/time), e o SDD deixou de ficar **dentro do repo de código**: agora fica **com a história**, em `work-items/<ID>-<slug>/sdd/<repo>/`, e **aponta** para o clone em `repos-project/` por `repo.md`. Uma história gera vários SDDs, um por repo. Os testes anteriores (reteste, quarta rodada e A/B) usaram o layout antigo.
+
+**Teste:** quatro agentes novos executaram a skill ao pé da letra no layout novo, com fixtures falsas e dois repos de código falsos, e depois **verificaram** a estrutura criada.
+
+| Caso | Tier | Nota do agente | Observações |
+|---|---|---:|---|
+| `HU-901`, Word | `fix` | 8 | sem `refinamento.md`, como previsto; lock `~$` descartado |
+| `HU-902`, Word, **dois repos** (duas execuções) | `lite` | 8,5 | 2º repo reaproveitou o refinamento; `README.md` lista os dois SDDs |
+| `HU-903`, Word ruim | `lite` | 8 | os 4 avisos do extrator viraram dúvidas no estado certo |
+| `HU-160`, PDF | `lite` | 8 | PDF movido para `original.pdf`, sem `source.md` |
+
+**Verificações (todas ok nos quatro casos):** árvore igual à do exemplo; `repo.md` resolve para uma pasta que existe; o original saiu de `_entrada/` e foi para `refinamento/original.*`; os repos de código ficaram sem nenhuma alteração; no caso de dois repos, o refinamento não foi duplicado nem sobrescrito.
+
+**Buraco que eu mesmo achei antes de rodar:** a segunda execução da mesma história não achava o original (já movido). Corrigido: se a pasta da história já existe, a skill pula os passos 1 a 4.
+
+**Ambiguidades reveladas e corrigidas no `SKILL.md` (sem nova reexecução):** regra da branch (só sugestão em texto, a skill não cria); derivação do `<tipo>` a partir do caminho listado; tier `fix` (origem do SDD e resumo do Gate 1); precedência entre "aberta" do extrator e "assumida" do "ok, siga" (nunca assumir aviso do extrator; aviso remetido pelo texto, como "veja a imagem", é bloqueante); bloqueio parcial (dúvida bloqueia só a parte que depende dela); SDD sem nenhuma task (Estado `bloqueado`); repo informado que o documento não toca (perguntar; Estado `sem-mudança`); Gate 1 na segunda execução (não há; dúvidas novas vão ao Gate 2); mover o original só depois de a extração dar certo; caminhos absolutos nos scripts.
+
+**Limites:** fixtures e repos falsos; uma execução por caso; agentes simulando o usuário ("ok, siga"); notas dos próprios agentes (8 a 8,5). Não foi testado com um Word real do usuário, nem as correções desta última rodada.
