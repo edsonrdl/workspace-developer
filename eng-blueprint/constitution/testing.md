@@ -1,7 +1,7 @@
 # Testing — Estratégia de testes
 
 > Seção da [[constitution]]. Autoridade máxima — não pode ser sobrescrita por patterns ou specs.
-> O *como implementar* (frameworks, configuração por arquitetura) fica nos `engineering-playbooks/`.
+> O *como implementar* (frameworks, configuração por arquitetura) fica nos `playbooks/`.
 > O *o que é obrigatório em todo projeto* está aqui.
 
 ---

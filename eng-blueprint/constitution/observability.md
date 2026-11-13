@@ -1,7 +1,7 @@
 # Observability — Logs, traces e métricas
 
 > Seção da [[constitution]]. Autoridade máxima — não pode ser sobrescrita por patterns ou specs.
-> O *como implementar* (qual biblioteca, qual formato específico por arquitetura) fica nos `engineering-playbooks/`.
+> O *como implementar* (qual biblioteca, qual formato específico por arquitetura) fica nos `playbooks/`.
 > O *o que é obrigatório em todo projeto* está aqui.
 
 ---
@@ -89,4 +89,4 @@ Todo serviço expõe `GET /health`. Formato mínimo obrigatório:
 - `degraded` — serviço funcionando mas com dependência não crítica com problema
 - `unhealthy` — serviço incapaz de processar requisições
 
-Detalhamento do formato por arquitetura está em `engineering-playbooks/microservice.md`.
+Detalhamento do formato por arquitetura está em `playbooks/microservice.md`.

@@ -39,8 +39,8 @@
 Quando uma decisão em `sdd/plan.md` se repete em dois ou mais projetos:
 
 1. O autor do segundo projeto identifica o padrão duplicado
-2. Abre ADR propondo a promoção para `engineering-playbooks/`
-3. ADR aprovado → decisão migra para `engineering-playbooks/[nome].md`
+2. Abre ADR propondo a promoção para `playbooks/`
+3. ADR aprovado → decisão migra para `playbooks/[nome].md`
 4. Os dois projetos atualizam seus `sdd/plan.md` para referenciar `[[nome-do-pattern]]`
 
 > Isso é como o vault evolui: decisões táticas se tornam padrões estratégicos.
@@ -52,6 +52,6 @@ Quando uma decisão em `sdd/plan.md` se repete em dois ou mais projetos:
 | Tipo de mudança | Aprovador |
 |---|---|
 | Nova seção na `constitution/` | Arquiteto principal |
-| Novo arquivo em `engineering-playbooks/` | Arquiteto responsável pela área |
+| Novo arquivo em `playbooks/` | Arquiteto responsável pela área |
 | Mudança em `sdd/` de um projeto | Tech lead do projeto |
-| Novo projeto em `workspace/` | Qualquer dev — não requer aprovação |
+| Novo projeto em `repos-business/` | Qualquer dev — não requer aprovação |

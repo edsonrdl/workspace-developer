@@ -4,7 +4,7 @@
 Este arquivo responde: "Como vai ser construído?"
 
 É a tradução das decisões técnicas específicas desta feature.
-O que já está nos [[engineering-playbooks]] NÃO deve ser repetido aqui — apenas referenciado.
+O que já está nos `playbooks/` NÃO deve ser repetido aqui — apenas referenciado.
 Este arquivo documenta apenas o que é ÚNICO e ESPECÍFICO deste projeto.
 
 Estrutura de cada decisão:
@@ -129,7 +129,7 @@ Consequências: [...]
 
 <!--
 Se uma decisão se repetir em outro projeto, anote para promover ao pattern:
-"Quando este padrão se repetir em outro projeto, promover para engineering-playbooks/[nome].md via ADR."
+"Quando este padrão se repetir em outro projeto, promover para playbooks/[nome].md via ADR."
 -->
 
 ---

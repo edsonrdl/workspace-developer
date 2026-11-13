@@ -20,7 +20,7 @@ Ele não descreve todas as formas possíveis de fazer algo — descreve **a form
 ```
 constitution/          → o que é lei universal — nunca violável
     ↓ estendido por
-engineering-playbooks/ → como implementar essa lei em cada arquitetura
+playbooks/            → como implementar essa lei em cada arquitetura
     ↓ referenciado por
 sdd/ do projeto        → o que é específico deste projeto
 ```
