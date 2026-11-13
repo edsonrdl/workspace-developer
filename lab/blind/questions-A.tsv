@@ -1,0 +1,20 @@
+antifraude/3ds-limite.md	Quantas confirmações de compra com o código do banco o sistema aguenta por minuto em produção antes de travar?
+antifraude/blocklist-limite.md	Qual o teto de consultas por minuto para a lista de clientes/cartões barrados em produção, e quanto passa em pico?
+antifraude/score-risco-prazo.md	Abri um chamado sobre a nota que o sistema dá para o quão suspeita é uma compra. Em quantas horas vão me responder?
+antifraude/velocity-procedimento.md	Está disparando alerta de muitas compras seguidas do mesmo cliente e nada resolve. O que a equipe técnica deve fazer passo a passo e quando abrir incidente?
+conciliacao/chargeback-procedimento.md	As contestações de compra feitas pelo portador pararam de ser processadas. Qual o roteiro de diagnóstico e depois de quanto tempo escalar?
+conciliacao/cnab-responsavel.md	Com quem falo quando o arquivo de remessa bancária dá problema? Preciso do time e do telefone de plantão.
+conciliacao/liquidacao-config.md	Quantas tentativas o sistema faz para o repasse do dinheiro no dia seguinte e qual era o valor antes da mudança?
+observabilidade/alertas-oncall-config.md	Quantas vezes o sistema tenta disparar o aviso para quem está de plantão antes de desistir, e onde isso é configurado?
+observabilidade/post-mortem-limite.md	Qual o limite de operações por minuto para os relatórios de análise após uma queda?
+observabilidade/slo-prazo.md	Em quanto tempo o atendimento responde um chamado sobre as metas de disponibilidade e margem de erro do serviço?
+observabilidade/tracing-procedimento.md	O rastreamento de uma requisição entre vários serviços parou de aparecer. Qual a sequência de passos para resolver e em que momento vira incidente?
+pagamentos/estorno-procedimento.md	Cliente pediu devolução do dinheiro da compra e o sistema não está devolvendo. Como o suporte técnico investiga e quando escala?
+pagamentos/idempotencia-responsavel.md	Clientes estão sendo cobrados duas vezes quando clicam duas vezes no botão. Qual time cuida disso e qual o canal de contato?
+pagamentos/tokenizacao-config.md	Qual o número máximo de tentativas ao guardar o cartão do cliente de forma segura, e qual era o padrão original?
+plataforma/circuit-breaker-config.md	Quantas falhas seguidas o sistema aguenta antes de cortar a chamada a um serviço instável? Qual o valor em produção?
+plataforma/dlq-limite.md	Qual o volume máximo por minuto para a fila onde ficam as mensagens que não conseguiram ser processadas?
+plataforma/feature-flag-prazo.md	Quanto tempo leva para me atenderem se eu pedir ajuda com os interruptores que ligam e desligam funcionalidades?
+plataforma/rate-limit-procedimento.md	Os clientes estão sendo bloqueados por excesso de acessos e o alerta não para. Como resolvo e depois de quanto tempo abro incidente?
+seguranca/break-glass-procedimento.md	Preciso liberar um acesso de emergência e algo não funciona. Qual o passo a passo de diagnóstico e quando escalar?
+seguranca/mascaramento-responsavel.md	Quem é o time responsável por esconder dados pessoais dos clientes para atender à lei de proteção de dados, e como chamar o plantão?

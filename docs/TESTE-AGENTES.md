@@ -16,7 +16,7 @@ Segundo teste do projeto. O primeiro (ver [RELATORIO.md](RELATORIO.md)) foi uma 
 
 | Pergunta | Resultado |
 |---|---|
-| Respostas que existem nos docs (12) | **12 de 12 corretas**, todas com arquivo e seção citados |
+| Respostas que existem nos docs (12; a pergunta conceitual tem linha própria abaixo, e 12 + 2 + 1 = 15 execuções) | **12 de 12 corretas**, todas com arquivo e seção citados |
 | Respostas que NÃO existem nos docs (2: cashback, programa de pontos) | **2 de 2**: disseram "não encontrei", sugeriram tópicos próximos e **não inventaram valor** |
 | Uso da internet | **1 de 15**, e foi o caso certo: o limite da Stripe, rotulado como fonte externa e com aviso para conferir a fonte oficial. O limite interno veio dos docs |
 | Pergunta conceitual ("o que significa 429") | Respondeu o conceito do conhecimento geral, **declarou isso** e ligou ao tópico Rate limiting dos docs |

@@ -6,6 +6,8 @@ Documento completo da investigação: o problema, as soluções comparadas, como
 
 > **Atualização após o teste com agentes reais:** o script `DocSearch.ps1` não rodou em nenhum agente (política de execução do PowerShell `Restricted` na máquina), e mesmo assim 12 de 12 respostas existentes saíram corretas pelo grep no frontmatter e pelos mapas. A skill foi ajustada para não depender do script. Detalhes e ressalvas em [TESTE-AGENTES.md](TESTE-AGENTES.md).
 
+> **Reteste de 2026-11-13 (seção 18):** a simulação reproduz os mesmos números (é determinística, seed 7). Um teste novo, com 20 perguntas escritas por alguém que não viu aliases nem glossário, deu **top-1 de 45% (9/20) e top-3 de 80% (16/20)** na busca por seção, contra 71,9% e 84,3% da simulação. O top-3 ficou próximo; o top-1 ficou bem abaixo. Com mais dois conjuntos de perguntas (seção 18.1), o resultado agrupado é de 57% no 1º e 80% no top-3, e varia de 65% a 95% no top-3 conforme o estilo das perguntas.
+
 ## Índice
 
 1. [Contexto e objetivo](#1-contexto-e-objetivo)
@@ -579,3 +581,62 @@ No corpus de teste, os docs **não têm links entre si** (só os mapas apontam p
 1. Rodar o mesmo teste da seção 16 nos **docs reais**, com 20 a 30 perguntas reais.
 2. Incluir nesse teste: **um doc grande** (500+ linhas) e **perguntas multi-doc** com links.
 3. Medir os sinais da seção 17.1 (ocorrências do grep, falhas em `lacunas.md`) por algumas semanas de uso, para decidir a migração com dados.
+
+## 18. Reteste (2026-11-13): perguntas escritas às cegas
+
+**Por que:** uma revisão crítica apontou que os aliases do corpus e as perguntas da simulação saem do mesmo gerador, então o resultado era circular. Este teste tira essa circularidade na parte da busca.
+
+**Como:**
+1. A simulação original (`lab/Simulate.ps1`) foi rodada de novo numa cópia do repositório.
+2. Um agente que nunca viu o repositório leu só o **corpo** de 20 docs (1 a cada 6, a partir do 3º, em ordem de caminho), sem frontmatter, glossário, índices ou código, e escreveu uma pergunta por doc com as próprias palavras.
+3. Cada pergunta foi passada em `src/DocSearch.ps1 -Top 3`, com e sem `corpus/glossario.txt`. Contou-se em que posição o doc certo apareceu. Dados em `lab/blind/questions.tsv` e `lab/blind/results.csv`.
+
+**Resultados**
+
+| Medida | Simulação (S6, mesma estratégia) | Teste cego (20 perguntas) |
+|---|---:|---:|
+| Doc certo em 1º, com glossário | 71,9% | **45% (9/20)** |
+| Doc certo no top-3, com glossário | 84,3% | **80% (16/20)** |
+| Doc certo em 1º, sem glossário | 65,6% | 40% (8/20) |
+| Doc certo no top-3, sem glossário | 76,2% | 75% (15/20) |
+
+- **Simulação reproduzida:** S7 com 97,2% no top-3 e 742 tokens médios, idêntico ao `lab/sim/resultado.md` já versionado. Isso confirma que o código é determinístico, não que o número vale no mundo real.
+- **Top-3 próximo, top-1 pior:** o top-3 (80%) fica perto do simulado, mas o top-1 (45%) está bem abaixo (71,9%). Na prática o agente precisa olhar mais de um candidato.
+- **Glossário:** ajudou em 1 pergunta de 20. Com n tão pequeno, não dá para afirmar efeito.
+- **Falhas (com glossário):** `observabilidade/alertas-oncall-config`, `pagamentos/estorno-procedimento`, `plataforma/feature-flag-prazo` e `plataforma/rate-limit-procedimento`.
+
+**Limites deste reteste (leia antes de citar os números)**
+- **n = 20.** O intervalo de confiança de 95% (Wilson) é de cerca de 58% a 92% para o top-3 e de 26% a 66% para o top-1.
+- **O corpus continua inventado.** Segundo o agente autor, quase todo o corpo dos docs é texto de enchimento e o fato específico fica na seção "Anexo". Isso facilita a busca por palavras e não representa docs reais.
+- **Só mediu o S6** (busca por seção). O **S7 não foi retestado**: o 97,2% depende de o agente cair nos mapas (MOC) quando a busca falha, e a taxa de 90% de "o agente percebe" continua **assumida**, não medida.
+- **Política de execução:** nesta sessão os scripts rodaram porque o processo do agente estava com a política em `Bypass`. Em um shell comum a política da máquina é `Restricted` (`LocalMachine`). O teste não prova que o `DocSearch.ps1` rode no seu terminal.
+- **Não é teste com agente de IA.** A busca foi chamada direto pelo script; o desempenho do agente lendo o grep e os mapas segue medido só pelos 15 testes da seção 16 (1 execução por pergunta, 1 modelo).
+
+**Conclusão:** a simulação não deve ser citada como taxa de acerto esperada. O número mais honesto hoje para a busca por seção em corpus inventado é **cerca de 80% no top-3 e cerca de 45% no 1º**, com margem grande. Falta rodar com docs reais e perguntas de quem as usa (seção 17.4).
+
+### 18.1 Três conjuntos de perguntas: o número depende de quem pergunta
+
+Para tentar chegar a 90%, foram escritos mais dois conjuntos cegos, por agentes diferentes e sobre docs diferentes (B e C, 20 perguntas cada). Em B, 3 docs coincidem com A. Em C, nenhum.
+
+| Conjunto | Estilo das perguntas | Top-1 | Top-3 |
+|---|---|---:|---:|
+| A | paráfrase coloquial | 9/20 (45%) | 16/20 (80%) |
+| B | paráfrase coloquial | 7/20 (35%) | 13/20 (65%) |
+| C | usa as palavras dos docs ("valor de configuração", "limite por minuto", "SLA") | 18/20 (90%) | 19/20 (95%) |
+| **Agrupado (60)** | | **34/60 (57%)** | **48/60 (80%)** |
+
+O intervalo de confiança de 95% do top-3 agrupado é de cerca de 68% a 88%, e o do top-1 de cerca de 44% a 68%. **A meta de 90% foi atingida só no conjunto C**, que reflete quem já conhece o vocabulário do doc. Para quem pergunta com as próprias palavras, o resultado fica entre 65% e 80% no top-3.
+
+**Tentativas de melhorar a busca** (feitas numa cópia; nada foi alterado em `src/` nem em `corpus/`):
+
+| Variante | Top-1 (60) | Top-3 (60) |
+|---|---:|---:|
+| Original | 34 | 48 |
+| Alias do glossário por conjunto de raízes (em vez de frase contígua) + 30 formas gerais de perguntar cada aspecto | 32 | 49 |
+| Mesma + normalização leve de terminações (falar, falo, fala) | 36 | 48 |
+
+Todas ficaram dentro do ruído (±2 perguntas). **Conclusão: o gargalo não é o algoritmo.** A maior parte das falhas acha o tópico certo e erra o aspecto (responsável, limite, prazo, procedimento, configuração), por diferença de vocabulário entre a pergunta e o doc.
+
+**Atalho não tomado, de propósito:** dar peso extra ao sufixo do nome do arquivo (`-responsavel`, `-limite`) subiria o número, mas só funciona neste corpus inventado, onde todo doc tem cinco aspectos de nome fixo. Não funcionaria com docs reais.
+
+**O que provavelmente move o número com docs reais:** curar `aliases` e `perguntas` no frontmatter com as palavras que o time realmente usa (o ciclo de lacunas da seção 12), e medir com perguntas reais. Os dados e o runner estão em `lab/blind/`.

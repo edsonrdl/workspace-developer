@@ -265,6 +265,6 @@ Ficam registradas como análise, sem compromisso, na seção 17 do [RELATORIO.md
 
 1. Linguagem das ferramentas: Python ou Node (D14).
 2. Como gerar os mapas onde o PowerShell é bloqueado (D6).
-3. Criar o `CLAUDE.md` da raiz (D8).
+3. ~~Criar o `CLAUDE.md` da raiz (D8)~~ (feito em 2026-11-13).
 4. Escrever o lint de CI (D12).
 5. Rodar o teste com perguntas reais nos docs reais (D13).
