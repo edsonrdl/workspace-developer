@@ -11,3 +11,4 @@ eng-blueprint/.trash/
 node_modules/
 dist/
 coverage/
+/.obsidian/

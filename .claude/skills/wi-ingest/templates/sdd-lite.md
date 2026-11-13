@@ -1,12 +1,12 @@
 # SDD — {{ID}} {{slug}}
 
-- **Origem:** história {{ID}} (brief fora deste repo, em `work-items/`; não linkar caminho)
-- **Tier:** lite · **Estado:** planejado
+- **Origem:** história {{ID}} (negócio fica em `work-items/`, fora deste repo; não linkar caminho)
+- **Tier:** {{lite|fix|standard}} · **Estado:** planejado
 
 ## Objetivo (1–2 linhas)
 {{o que muda, sem repetir o brief}}
 
-## Regras de negócio relevantes (cópia do brief)
+## Regras de negócio relevantes (cópia do brief, ou do documento no tier fix)
 - **RN-1** {{texto literal}}
 - **RN-2** …
 

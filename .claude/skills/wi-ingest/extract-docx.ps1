@@ -23,6 +23,12 @@ try {
   $xml = $sr.ReadToEnd(); $sr.Close()
   $images = @($zip.Entries | Where-Object { (& $norm $_) -like 'word/media/*' }).Count
   $hasComments = [bool]($zip.Entries | Where-Object { (& $norm $_) -eq 'word/comments.xml' })
+  $footnotes = $false
+  $fe = $zip.Entries | Where-Object { (& $norm $_) -eq 'word/footnotes.xml' } | Select-Object -First 1
+  if ($fe) {
+    $fr = New-Object System.IO.StreamReader($fe.Open(), [System.Text.Encoding]::UTF8)
+    $footnotes = ([regex]::Matches($fr.ReadToEnd(), '<w:t[ >]').Count -gt 0); $fr.Close()
+  }
 } finally { $zip.Dispose(); $fs.Dispose() }
 
 $t = $xml
@@ -31,6 +37,9 @@ $deletions = [regex]::Matches($t, '<w:del\b').Count
 $t = [regex]::Replace($t, '(?s)<w:del\b[^>]*>.*?</w:del>', '')
 # caixas de texto aparecem duas vezes (Choice + Fallback): mantém só uma
 $t = [regex]::Replace($t, '(?s)<mc:Fallback>.*?</mc:Fallback>', '')
+# códigos de campo (FORMTEXT, PAGE...) e deslocamentos de posição de desenhos não são texto
+$t = [regex]::Replace($t, '(?s)<w:instrText\b[^>]*>.*?</w:instrText>', '')
+$t = [regex]::Replace($t, '(?s)<wp:(?:posOffset|align)>.*?</wp:(?:posOffset|align)>', '')
 # títulos -> #, listas -> "- " com recuo
 $t = [regex]::Replace($t, '(?s)<w:p\b(?:(?!</w:p>).)*?<w:pStyle w:val="(?:Heading|Ttulo|Titulo|Titre|berschrift)(\d)"[^>]*/>', {
   param($m) '<w:p><w:t>' + ('#' * [int]$m.Groups[1].Value) + ' </w:t>' })
@@ -53,6 +62,8 @@ $warn = @()
 if ($images -gt 0)   { $warn += "$images imagem(ns)/diagrama(s) NÃO lidos (word/media). Peça ao usuário para descrevê-los ou exporte-os." }
 if ($hasComments)    { $warn += "O documento tem comentários que NÃO foram extraídos." }
 if ($deletions -gt 0){ $warn += "$deletions trecho(s) excluído(s) em controle de alterações foram ignorados." }
+if ($footnotes)      { $warn += "O documento tem notas de rodapé que NÃO foram extraídas." }
+if ($t.Length -eq 0) { $warn += "Nenhum texto no corpo do documento (só cabeçalho/rodapé, imagens ou campos). Peça o conteúdo ao usuário." }
 foreach ($w in $warn) { Write-Warning $w }
 if ($warn.Count -gt 0) {
   $banner = ($warn | ForEach-Object { "> AVISO: $_" }) -join "`n"

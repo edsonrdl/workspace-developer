@@ -192,6 +192,18 @@ Quatro críticos (Tech Lead Cético, Dev Sênior Usuária, Engenheiro de Context
 
 **Fora deste repo (docs-compass), apontado pelos críticos:** contagem "12 de 12" não fecha com 15 execuções; `COMECE-AQUI.md` cita `corpus/lacunas.md` e `TESTE-AGENTES.md` cita um `CLAUDE.md` que não existem; teste circular (aliases e perguntas do mesmo gerador); script de busca nunca rodou; pasta local ainda `solucao-doc-brq`.
 
+## 6e. Estado após fechar pendências (2026-11-13)
+**Feito:** pastas `work-items/` (com `git init` local, sem remote) e `repos-project/{apis,microservices}` criadas ao lado deste repo; extrator em `.sh` (Linux/Git Bash) além do `.ps1`; skill prefere PDF/MD, depois `.sh`, depois `.ps1`, e trata bloqueio sem contornar; `allowed-tools` inclui `bash`; `AGENTS.md` e `CLAUDE.md` na raiz; `.gitattributes` fixa LF nos `.sh`; ruído de fim de linha do `sdd-template` limpo; `/.obsidian/` da raiz ignorado. No docs-compass: `CLAUDE.md` e `corpus/lacunas.md` criados, rótulo da contagem 12+2+1=15 esclarecido, três conjuntos de perguntas cegas (ver seção 18.1 do relatório de lá).
+
+**Não fechável sem você:**
+1. Rodar `/wi-ingest` com um **Word real** seu (tudo foi testado com `.docx`/PDF sintéticos e agente simulando o uso).
+2. O **teste A/B com 3 histórias reais**. Feito com histórias falsas (ver `docs/relatorio-abordagens.md`): a skill gastou +18,6% de tokens e só ganhou em detecção no documento com conteúdo não-textual. A prova real segue pendente.
+3. Testar o `.sh` numa **VM Linux real** (o WSL desta máquina não tem distribuição instalada).
+4. Definir os repos reais em `repos-project/` (clones).
+5. Decidir se o remote `work-items` existe e qual é.
+
+**Meta de 90% (busca do docs-compass):** atingida só no conjunto de perguntas que usa o vocabulário dos docs (95% no top-3). Agrupando 60 perguntas, 80% no top-3 e 57% no top-1; nenhuma mudança de algoritmo ou glossário saiu do ruído. Não é um defeito corrigível por código neste corpus: ver o relatório do docs-compass.
+
 ## 7. Decisões em aberto
 1. Scripts em **PowerShell**, Node ou Python?
 2. `work-items/` como **repo git próprio** (recomendo) ou dentro deste?
