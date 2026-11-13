@@ -131,7 +131,7 @@ Depois: **skills/slash commands** do Claude Code (`/wi-new`, `/sdd-plan`, `/sdd-
 
 ## 6. Fases e checklist
 
-### Fase 0 — Limpeza (este workspace) · **status: concluída em 2026-11-13 (não commitada)**
+### Fase 0 — Limpeza (este workspace) · **status: concluída e publicada em 2026-11-13**
 - [x] Renomear `constitution.md/` → `constitution/` e `engineering-playbooks/` → `playbooks/` (referências textuais ajustadas; wikilinks `[[ ]]` resolvem por nome de arquivo, não quebram)
 - [x] Fatiar `README.md` (35 KB → 2,3 KB) em `docs/porque-sdd.md`, `governanca-hitl.md`, `referencias.md`, `faq.md`
 - [x] `Fluxo.md` → `docs/ordem-de-leitura.md`
@@ -177,7 +177,20 @@ Skill `/wi-ingest` em `.claude/skills/wi-ingest/` (raiz do repo): doc humanizada
 - **Convenção de nome em `docs-compass/`:** `AAAA-MM-DD_<ID>_<slug>.<ext>`, ex. `2026-11-13_HU-142_pagamento-pix.docx`.
 - **Mudança de decisão:** o ID do work-item passa a ser o **ID externo da história** (`HU-142-pagamento-pix`) em vez de `2026-001-…`; rastreia direto ao tracker.
 - Extrator de `.docx` sem dependências (PowerShell), testado com `.docx` sintético (acentos, lista, tabela). **Não testado ainda** rodando a skill inteira no Claude Code nem com um Word real do seu fluxo → entra no piloto (Fase 5).
-- Limites: `.docx` com imagens/diagramas, comentários e controle de alterações não são lidos; `.pdf` depende do leitor do Claude.
+- Limites: imagens/diagramas e comentários de `.docx` **não são lidos, mas o extrator agora avisa** (e o aviso vira `[NEEDS CLARIFICATION]`); `.pdf` depende do leitor do Claude. Testado com `.docx` sintético (imagem, comentário, texto excluído, título, lista aninhada, arquivo travado); não testado com Word real.
+
+## 6d. Crítica independente e cortes (2026-11-13)
+Quatro críticos (Tech Lead Cético, Dev Sênior Usuária, Engenheiro de Contexto, Auditor de Honestidade) leram este repo e o `docs-compass`. Consenso: a ideia central ajuda, mas há mais texto que função (~5,5:1 doc/executável no blueprint segundo o Auditor) e **nenhuma economia de tokens foi medida**. Veredito resumido: parcial / usaria com cortes / alegação de tokens frágil / capricho 7 de 10.
+
+**Aplicado:** extrator avisa imagens, comentários e alterações ignoradas; lê arquivo travado; títulos e listas aninhadas; skill sem `-ExecutionPolicy Bypass`, com tier `fix` (sem brief), filtro `~$`, ID exato, sem `source.md` para `.md`, sem `repos.md` obrigatório; SDD sem link para fora do repo (copia as RN); `AGENTS.md` curto + `CLAUDE.md`; alegações de tokens rebaixadas a hipótese em `docs/porque-sdd.md` e `docs/governanca-hitl.md`.
+
+**Congelado até o teste A/B (não construir):** subagentes, hook de validação, `repos-registry`, scripts `link-repo`/`check`/`status`, tier Full como padrão, novos relatórios.
+
+**Mantido:** skill `wi-ingest`, SDD lite com delta + `[NEEDS CLARIFICATION]`, `AGENTS.md` curto, convenção de nome.
+
+**Teste A/B (1 semana, 3 histórias reais):** para cada história, (A) `CLAUDE.md` curto + texto da doc colado + "plano de mudança + tasks"; (B) `/wi-ingest` lite. Medir tokens totais (`/cost`), tempo até a primeira task aprovada, correções feitas no SDD, ambiguidades de negócio pegas antes de codar. Critério: B só se justifica se gastar ≤ A em tokens **ou** pegar ≥ 1 ambiguidade a mais por história, sem aumentar o tempo de revisão. Empate → ficar com A e apagar o resto.
+
+**Fora deste repo (docs-compass), apontado pelos críticos:** contagem "12 de 12" não fecha com 15 execuções; `COMECE-AQUI.md` cita `corpus/lacunas.md` e `TESTE-AGENTES.md` cita um `CLAUDE.md` que não existem; teste circular (aliases e perguntas do mesmo gerador); script de busca nunca rodou; pasta local ainda `solucao-doc-brq`.
 
 ## 7. Decisões em aberto
 1. Scripts em **PowerShell**, Node ou Python?

@@ -93,11 +93,11 @@ Isso garante:
 - **Governança sem burocracia:** as regras estão no código, não em documentos Word esquecidos em drives
 - **Controle proporcional ao risco:** HITL para decisões críticas, HOTL para features, HIC para automações maduras
 - **Onboarding acelerado:** novo membro lê `constitution.md` + `sdd/spec.md` do projeto e tem contexto completo em minutos
-- **Redução de custo com IA:** spec bem escrita reduz drasticamente o número de tokens consumidos por feature — veja a seção "Economia de tokens"
+- **Redução de custo com IA:** spec bem escrita **pode** reduzir retrabalho e tokens (hipótese, ver [porque-sdd.md](porque-sdd.md); não medido)
 
 ### Para desenvolvedores e tech leads
 
-- **O agente nunca chuta:** ele lê a spec completa antes de escrever uma linha de código
+- **Menos chute:** o agente lê a spec antes de escrever código e é instruído a marcar lacunas em vez de adivinhar (não verificado em uso real)
 - **Sem "qual versão está vigente?":** a `sdd/` vive no mesmo repositório que o código, com o mesmo controle de versão
 - **Code review com contexto completo:** o PR inclui `sdd/` + código — o revisor vê o que foi decidido, o que foi construído e como valida, tudo no mesmo diff
 - **Retomada automática:** `sdd/tasks.md` com estado `[x]`/`[ ]` permite parar e continuar sessões sem perder contexto

@@ -2,6 +2,8 @@
 
 > Material de contexto — leia sob demanda, não é carregado pelo agente.
 
+> ⚠️ **Status das alegações (2026-11-13):** os números e afirmações de economia de tokens abaixo são **hipóteses**, sem medição, baseline nem tarefa pareada. Nenhum SDD foi usado ainda em repo real. Críticos independentes (revisão deste repo) apontaram isso; a validação está prevista no teste A/B do [PLANO.md](../PLANO.md).
+
 ## O problema que este projeto resolve
 
 ### Vibe Code — o risco invisível
@@ -57,7 +59,7 @@ A `constitution/` e os `playbooks/` são escritos uma vez e referenciados por to
 
 **2. Sem rodadas de clarificação**
 
-O agente não pergunta "qual banco?", "como fazer retry?", "qual formato de resposta?" — tudo está na spec. O `contracts.md` define o modelo de dados exato. O `plan.md` define o banco, o ORM, a fila. O `acceptance.md` define o critério de aceite. **Zero ambiguidade = zero rodadas de clarificação = zero tokens desperdiçados.**
+O agente não pergunta "qual banco?", "como fazer retry?", "qual formato de resposta?" — tudo está na spec. O `contracts.md` define o modelo de dados exato. O `plan.md` define o banco, o ORM, a fila. O `acceptance.md` define o critério de aceite. **Hipótese:** com spec completa, menos rodadas de clarificação. Só vale se a spec for boa, e uma pergunta de clarificação costuma ser mais barata que reler uma spec grande a cada sessão.
 
 **3. `tasks.md` elimina retrabalho entre sessões**
 
@@ -69,9 +71,9 @@ Cada arquivo da `sdd/` declara apenas o que é *único* daquele nível. O `requi
 
 **5. Primeira implementação correta**
 
-O maior gasto de tokens no Vibe Code não é a geração inicial — é a *correção*. Um agente sem spec gera algo plausível mas errado; a correção pode custar 3x mais tokens que a geração original. Com spec completa, a taxa de acerto na primeira implementação é dramaticamente maior.
+O maior gasto de tokens no Vibe Code não é a geração inicial — é a *correção*. Um agente sem spec gera algo plausível mas errado; a correção pode custar mais que a geração original (sem medição). Com spec completa, a taxa de acerto na primeira implementação **deve** ser maior — a verificar.
 
-### Estimativa comparativa
+### Hipótese ilustrativa (NÃO medida)
 
 | Cenário | Rodadas típicas | Tokens estimados |
 |---|---|---|
@@ -79,6 +81,6 @@ O maior gasto de tokens no Vibe Code não é a geração inicial — é a *corre
 | eng-blueprint — mesma feature | 1 rodada (ler spec + implementar) | ~15k–40k tokens |
 | eng-blueprint — sessão retomada | Começa na primeira `[ ]` | ~5k–15k tokens |
 
-> Os valores são estimativas baseadas em uso típico. O ganho real depende da complexidade da feature e da qualidade da spec.
+> Valores ilustrativos, sem fonte nem medição. Não os cite como resultado. O custo de escrever a `sdd/` (e de revisá-la) não está na conta.
 
 **O investimento:** escrever a `sdd/` antes de implementar custa tokens. Mas esse custo é pago uma vez e recuperado em cada sessão subsequente — especialmente em projetos com múltiplas features, múltiplos desenvolvedores e múltiplas sessões de refinamento.

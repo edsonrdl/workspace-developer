@@ -22,3 +22,6 @@
 
 ## Dúvidas abertas
 - [NEEDS CLARIFICATION: {{pergunta}}]
+
+## Implementação
+- {{alias}} → `{{tipo}}/{{alias}}/sdd/{{ID}}-{{slug}}/` · estado: planejado

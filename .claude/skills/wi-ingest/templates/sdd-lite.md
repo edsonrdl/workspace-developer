@@ -1,10 +1,14 @@
 # SDD — {{ID}} {{slug}}
 
-- **WI:** `../../../../../work-items/{{ID}}-{{slug}}/brief.md`
+- **Origem:** história {{ID}} (brief fora deste repo, em `work-items/`; não linkar caminho)
 - **Tier:** lite · **Estado:** planejado
 
 ## Objetivo (1–2 linhas)
 {{o que muda, sem repetir o brief}}
+
+## Regras de negócio relevantes (cópia do brief)
+- **RN-1** {{texto literal}}
+- **RN-2** …
 
 ## Context pack (leia só isto)
 | Arquivo | Por quê |
