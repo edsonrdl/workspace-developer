@@ -4,6 +4,8 @@ Uma bússola para achar a resposta certa na documentação de uma equipe, usando
 
 > Os docs em `corpus/` são **exemplos inventados** (uma plataforma de pagamentos fictícia, a "AcmePay"). Substitua-os pelos docs reais da sua equipe.
 
+> **Neste workspace (`workspace-developer`):** esta pasta é a camada de **documentação** (de governo ou de time). Ela é **independente** do fluxo de histórias: nenhuma skill do blueprint lê ou escreve aqui, e as histórias ficam em [`../work-items/`](../work-items/). Para usar a skill de consulta (`consultar-docs`), abra o Claude Code dentro desta pasta.
+
 ## O que ele faz
 
 - **Responde dúvidas a partir dos docs.** O agente procura no repositório, lê só a seção necessária e responde citando **arquivo, seção e data**. Quando não acha, diz que não achou em vez de inventar.
