@@ -11,6 +11,7 @@
 | [`ai-driven-engineering-blueprint/`](ai-driven-engineering-blueprint/) | **Regras e ferramentas**: constitution, playbooks, templates de SDD e a skill `/wi-ingest` | quando muda um padrão ou a skill |
 | [`work-items/`](work-items/) | **As histórias**: documento recebido, refinamento de negócio e um SDD por repo | a cada história nova |
 | [`repos-project/`](repos-project/) | **O código**: clones dos repos da empresa, por tipo (`apis/`, `microservices/`…). Cada clone tem o seu próprio remoto e **não é versionado aqui** | ao implementar |
+| [`docs-compass/`](docs-compass/) | **Documentação da equipe consultável por IA** (skill `consultar-docs`). Independente do fluxo de histórias; veja o README dele | quando for consultar ou curar docs |
 
 ## Como as camadas se conectam
 
@@ -43,4 +44,4 @@ Veja um exemplo completo em [`work-items/_EXEMPLO-HU-142-pagamento-pix/`](work-i
 
 ## Histórico
 
-Este repositório reúne três repositórios que existiam separados, com o histórico preservado (`git subtree`): `ai-driven-engineering-blueprint`, `docs-compass` (removido do workspace; segue no histórico do git) e `work-items` (começou aqui, sem histórico anterior).
+Este repositório reúne três repositórios que existiam separados, com o histórico preservado (`git subtree`): `ai-driven-engineering-blueprint`, `docs-compass` (documentação da equipe consultável por IA) e `work-items` (começou aqui, sem histórico anterior).

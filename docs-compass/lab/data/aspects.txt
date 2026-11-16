@@ -1,0 +1,5 @@
+limite|limite máximo|teto|quanto aguenta|valor máximo permitido
+prazo|prazo (SLA)|em quanto tempo|tempo de espera|quando fica pronto
+responsavel|equipe responsável|com quem falar|quem cuida disso|a quem pedir ajuda
+config|parâmetro de configuração|onde configuro|qual a configuração|como ajustar
+procedimento|runbook de troubleshooting|como resolver|passo a passo para consertar|o que fazer quando der problema

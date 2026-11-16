@@ -1,0 +1,24 @@
+pagamentos|idempotencia|Idempotência de requisições|evitar cobrança duplicada|garantir que o pedido não seja processado duas vezes|cliente foi cobrado duas vezes|pagamento duplicado na fatura
+pagamentos|estorno|Estorno de transações|devolver dinheiro ao cliente|cancelar uma compra já paga|valor não voltou para a conta do cliente|reembolso não apareceu
+pagamentos|split|Split de pagamento|dividir o valor entre lojistas|repartir a venda entre vários recebedores|repasse veio com valor errado|lojista recebeu menos do que devia
+pagamentos|tokenizacao|Tokenização de cartão|guardar cartão do cliente|salvar cartão para compras futuras|cartão salvo parou de funcionar|token do cartão inválido
+conciliacao|conciliacao-bancaria|Conciliação bancária|bater extrato com as vendas|conferir se o dinheiro do banco confere com o sistema|diferença no fechamento do dia|vendas que não aparecem no extrato
+conciliacao|cnab|Arquivo CNAB de remessa|arquivo enviado ao banco|layout de arquivo de cobrança|banco rejeitou o arquivo|retorno do banco com erro de layout
+conciliacao|chargeback|Chargeback|contestação de compra|cliente não reconhece a cobrança|cliente contestou a compra no cartão|recebemos aviso de disputa
+conciliacao|liquidacao|Liquidação D+1|quando o dinheiro cai na conta|data de recebimento das vendas|repasse atrasou|dinheiro da venda não caiu ainda
+antifraude|score-risco|Score de risco da transação|nota de suspeita da compra|pontuação que diz se a compra é confiável|transação legítima foi negada|compra boa recusada pelo antifraude
+antifraude|blocklist|Lista de bloqueio (blocklist)|bloquear cliente ruim|impedir CPF problemático de comprar|cliente bloqueado indevidamente|usuário não consegue comprar sem motivo
+antifraude|3ds|Autenticação 3DS|confirmação extra do cartão no banco|tela de senha do banco na compra|tela do banco não abre no checkout|compra trava na autenticação
+antifraude|velocity|Regras de velocity|limite de tentativas em pouco tempo|bloquear muitas compras seguidas|muitas tentativas seguidas bloqueadas|cliente travado após errar o cartão
+plataforma|rate-limit|Rate limiting|limite de requisições por cliente|controle de uso da API por parceiro|erro 429 na API|parceiro reclama de requisições recusadas
+plataforma|circuit-breaker|Circuit breaker|proteção quando o parceiro cai|desligar chamadas para serviço instável|tudo travou quando o banco ficou fora|sistema lento porque um serviço caiu
+plataforma|dlq|Fila de mensagens mortas (DLQ)|mensagens que falharam no processamento|fila de erros do sistema assíncrono|mensagem sumiu da fila|eventos não foram processados
+plataforma|feature-flag|Feature flags|ligar funcionalidade sem deploy|liberar recurso aos poucos|funcionalidade apareceu para todos sem querer|recurso novo ligado em produção por engano
+observabilidade|alertas-oncall|Alertas e escala de on-call|quem é chamado de madrugada|plantão de suporte técnico|não recebi o alerta do incidente|ninguém atendeu o plantão
+observabilidade|slo|SLO e error budget|meta de disponibilidade|quanto de falha podemos ter no mês|disponibilidade caiu abaixo da meta|orçamento de erro estourou
+observabilidade|tracing|Tracing distribuído|seguir uma requisição entre serviços|ver por onde a chamada passou|não acho onde a requisição demorou|lentidão sem saber qual serviço causou
+observabilidade|post-mortem|Post-mortem de incidentes|relatório depois de uma falha|análise do que deu errado|ninguém escreveu o relatório do incidente|incidente repetiu sem lição aprendida
+seguranca|segredos|Gestão de segredos|onde guardar senha de serviço|armazenar credenciais com segurança|senha vazou no repositório|chave de API foi parar no git
+seguranca|mascaramento|Mascaramento de dados pessoais (LGPD)|esconder dados pessoais|ocultar CPF em telas e logs|CPF aparecendo no log|dado pessoal exposto na tela
+seguranca|rotacao-chaves|Rotação de chaves de criptografia|trocar a chave de criptografia|renovar chaves periodicamente|chave expirada derrubou a integração|certificado venceu
+seguranca|break-glass|Acesso emergencial (break-glass)|acesso de emergência ao banco de produção|entrar em produção durante incidente|preciso de acesso ao banco prod agora|acesso negado durante incidente
