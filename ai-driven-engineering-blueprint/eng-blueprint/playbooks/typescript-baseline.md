@@ -15,13 +15,13 @@ applies_to: [hexagonal, clean-architecture]
 ## Referências
 
 - [[constitution]] tem prioridade sobre este arquivo
-- [[stack]] (TypeScript strict, Node LTS, AWS), [[quality]] (lint, 80% de cobertura), [[testing]], [[security]], [[observability]], [[documentation]]
+- [[stack]] (TypeScript strict, Node LTS, AWS), [[quality]] (lint, 80% de cobertura), [[testing]], [[security]], [[observability]]
 
 ---
 
 ## 1. O que este arquivo decide e o que ele deixa para o `sdd/plan.md`
 
-A constituição aprova a linguagem, o runtime e a cloud, mas **não** escolhe bibliotecas. Pela [[governance]], biblioteca nova de infraestrutura exige decisão registrada. Por isso o agente **nunca escolhe sozinho** os itens abaixo: lê no `sdd/plan.md` (ou no `package.json` do repo existente) e, se faltar, **pergunta** antes de instalar.
+A constituição aprova a linguagem, o runtime e a cloud, mas **não** escolhe bibliotecas. Biblioteca nova de infraestrutura exige decisão registrada no `plan.md`. Por isso o agente **nunca escolhe sozinho** os itens abaixo: lê no `sdd/plan.md` (ou no `package.json` do repo existente) e, se faltar, **pergunta** antes de instalar.
 
 | Decisão aberta | Onde fica declarada | Sugestão (só se o humano aceitar) |
 |---|---|---|
@@ -343,14 +343,12 @@ export async function buildHealthReport(
 
 ---
 
-## 8. Documentação obrigatória do repo ([[documentation]])
+## 8. Documentação mínima do repo
 
 - `README.md`: o que é, como rodar, variáveis de ambiente, como testar, como fazer deploy
-- `CHANGELOG.md` (Keep a Changelog)
-- `docs/adr/NNN-titulo.md`: toda decisão relevante, **incluindo a escolha da arquitetura**
 - `.env.example`
 
-ADR mínimo da arquitetura (`docs/adr/001-arquitetura.md`): contexto, decisão (`hexagonal` ou `clean-architecture`, monolito modular ou serviço único), consequências, alternativas descartadas.
+A escolha da arquitetura e as demais decisões ficam em Decisões no `plan.md` do SDD, não em ADR.
 
 ---
 

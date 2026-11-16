@@ -43,8 +43,6 @@ app-name/
 ├── tests/
 │   ├── unit/
 │   └── integration/
-├── docs/
-│   └── adr/
 └── README.md
 ```
 

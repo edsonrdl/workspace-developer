@@ -18,13 +18,7 @@
 
 ## Adição de nova tecnologia
 
-Qualquer linguagem, provedor ou ferramenta fora desta lista requer:
-
-1. Proposta em formato ADR em `docs/adr/`
-2. Aprovação do arquiteto responsável
-3. Registro em [[governance]] antes de qualquer implementação
-
-Implementações sem ADR aprovado são consideradas experimentais e não chegam a produção.
+Qualquer linguagem, provedor ou ferramenta fora desta lista exige aprovação explícita do responsável **antes** de implementar, registrada em Decisões no `plan.md` do SDD (decisão, por quê, alternativa descartada). Sem isso, é experimental e não chega a produção.
 
 ---
 

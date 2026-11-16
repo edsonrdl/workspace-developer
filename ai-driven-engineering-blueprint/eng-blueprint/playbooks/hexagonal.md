@@ -20,7 +20,7 @@ reads_first: [constitution, typescript-baseline]
 - [[modular-monolith]]: este playbook é a forma hexagonal do monolito modular (a regra de `index.ts` público vira a pasta `api/`)
 - [[rest-api]]: contratos HTTP dos adapters de entrada
 - [[microservice]]: caminho de extração de um módulo para serviço
-- [[testing]], [[quality]], [[security]], [[observability]], [[documentation]], [[governance]]
+- [[testing]], [[quality]], [[security]], [[observability]]
 
 ---
 
@@ -69,7 +69,7 @@ Quem garante: `dependency-cruiser` (§10.1) + ESLint + tipos. Sem `arch` verde, 
 ## 2. Quando usar e quando não usar
 
 **Use:** domínio com regra de negócio relevante; várias integrações voláteis (pagamento, ERP, fila); várias pessoas/times no mesmo código; possível extração futura de módulos.
-**Não use:** CRUD sem regra, protótipo descartável, script/job trivial. Aí use [[mvc]] ou [[rest-api]] simples. Se o repo mistura, aplique Hexagonal **só nos módulos com regra rica**.
+**Não use:** CRUD sem regra, protótipo descartável, script/job trivial. Aí use uma [[rest-api]] simples em camadas. Se o repo mistura, aplique Hexagonal **só nos módulos com regra rica**.
 
 ---
 
@@ -146,8 +146,7 @@ Nomes de módulo: `kebab-case` em inglês, substantivo do negócio (`orders`, `p
 ├── tests/
 │   ├── integration/
 │   └── e2e/
-├── docs/adr/001-arquitetura.md
-├── sdd/                                   ← quando existir ([[governance]])
+├── sdd/                                   ← quando existir
 ├── .dependency-cruiser.cjs
 ├── eslint.config.js · tsconfig.json · tsconfig.build.json · vitest.config.ts
 ├── package.json · .env.example · .gitignore
@@ -774,7 +773,7 @@ Pré-condições: parâmetros da §3 preenchidos; pasta do repo vazia ou nova; `
 6. Gerar `bootstrap/app.ts` e `main.ts` (carrega config, cria infra com as libs do `plan.md`, `buildApp`, sobe o HTTP com `GET /health`).
 7. Instalar **somente** as dependências declaradas (`npm install` com as libs do plan + devDeps do baseline).
 8. Escrever os testes: domínio puro, use case com fakes, adapter (integração com banco real ou container, conforme [[testing]]).
-9. Escrever `README.md`, `CHANGELOG.md`, `docs/adr/001-arquitetura.md`.
+9. Escrever `README.md` e `.env.example`.
 10. Rodar `npm run verify`. Corrigir até ficar verde.
 11. **Prova de proteção:** adicionar temporariamente `import { Pool } from 'pg'` (ou qualquer lib) em um arquivo de `domain/`, rodar `npm run arch`, confirmar que **falha**, e remover. Repetir com um import de `../../other/domain/...` entre módulos. Registrar no relatório.
 12. Relatar: o que foi criado, resultado do `verify`, o que ficou como `[NEEDS CLARIFICATION]`. **Não commitar.**
@@ -791,7 +790,7 @@ Pré-condições: parâmetros da §3 preenchidos; pasta do repo vazia ou nova; `
 4. Registrar em `bootstrap/app.ts` respeitando a ordem das dependências.
 5. Criar o schema/prefixo e a migration do módulo (§8). **Nenhuma FK** para outro módulo.
 6. Se precisa de outro módulo: criar a **porta de saída** + `adapters/out/<outro>/` com ACL, usando só o `api/` dele. Se precisa reagir a evento: `adapters/in/events/`.
-7. Testes das 3 camadas + `npm run verify`. Atualizar README (lista de módulos) e ADR se a fronteira for uma decisão nova.
+7. Testes das 3 camadas + `npm run verify`. Atualizar o README (lista de módulos); decisão nova de fronteira vai em Decisões no `plan.md` do SDD.
 
 ### 12.2 `ADD-USE-CASE`
 
@@ -831,7 +830,7 @@ Usado no AUDIT e na revisão de PR. Severidade: **B** = bloqueante, **M** = maio
 | H-18 | Sem `console.*`, sem `any` sem justificativa | `npm run lint` | M |
 | H-19 | Cobertura ≥ 80% | `npm run test:cov` | M |
 | H-20 | `npm audit` sem alta/crítica | `npm run audit` | B |
-| H-21 | ADR da arquitetura em `docs/adr/` + README/CHANGELOG | existência | m |
+| H-21 | README e `.env.example` | existência | m |
 | H-22 | Composition root em `<m>.module.ts`; `bootstrap` não importa camadas internas | `npm run arch` | M |
 
 ---
@@ -844,12 +843,12 @@ Objetivo: dizer, com evidência, **quão aderente** o repo está e levar a ader�
 
 ### 14.1 Passo 1: diagnóstico
 
-1. Identificar o repo: `package.json` (scripts, deps), árvore de `src/`, `AGENTS.md`, `sdd/`, `docs/adr/`.
+1. Identificar o repo: `package.json` (scripts, deps), árvore de `src/`, `AGENTS.md`, `sdd/`.
 2. Classificar o layout atual:
 
 | Layout | Sinais | Caminho |
 |---|---|---|
-| **A. Em camadas/MVC** | `controllers/ services/ models/` ([[mvc]]) | migrar por caso de uso (§14.3) |
+| **A. Em camadas/MVC** | `controllers/ services/ models/` | migrar por caso de uso (§14.3) |
 | **B. Parcialmente hexagonal** | já há `domain/` e `ports`, mas com vazamentos | corrigir violações (§14.2) |
 | **C. Hexagonal conforme** | estrutura da §4 | só fechar lacunas de configuração |
 | **D. Sem estrutura** | tudo misturado | tratar como A, começando pelo contexto mais rico |
@@ -900,7 +899,7 @@ Ordem fixa, cada item é uma task pequena e testável (INVEST):
    e. controller antigo passa a chamar a porta;
    f. remover do known-violations o que foi pago; `verify` verde.
 5. **Fechar fronteiras entre módulos:** criar `api/` por módulo, trocar imports diretos por `api/` + ACL, separar dados (§8).
-6. **Documentação:** ADR `001-arquitetura.md`, README, CHANGELOG.
+6. **Documentação:** README e `.env.example`.
 7. Quando `known-violations` estiver vazio, apagar o arquivo e deixar `severity: 'error'` sem exceção.
 
 **Nunca:** reescrever o repo inteiro de uma vez; mexer em regra de negócio ao mover código (mover e mudar comportamento são PRs separados); mudar contrato HTTP público sem task explícita.
@@ -925,7 +924,7 @@ Ordem fixa, cada item é uma task pequena e testável (INVEST):
 - [ ] `npm run verify` verde (lint, tipos, arch, testes 80%, audit) e **resultado colado no relatório**
 - [ ] Prova de proteção feita (§11 passo 11) quando for SCAFFOLD/ADD-MODULE
 - [ ] Nenhuma lib fora do `plan.md`; nenhum segredo; `.env` não versionado
-- [ ] ADR/README/CHANGELOG atualizados
+- [ ] README atualizado
 - [ ] Dúvidas de negócio ficaram como `[NEEDS CLARIFICATION]`, não inventadas
 - [ ] Nada commitado sem pedido
 

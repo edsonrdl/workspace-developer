@@ -38,7 +38,6 @@ Os `sdd/plan.md` dos projetos **não repetem** o que está nos playbooks — ape
 | [[microservice]] | Construindo um serviço independente com deploy próprio |
 | [[rest-api]] | Expondo endpoints HTTP — contratos, envelope, autenticação |
 | [[modular-monolith]] | Aplicação única com módulos bem delimitados |
-| [[mvc]] | Padrão MVC para aplicações web |
 | [[hexagonal]] | Ports & Adapters, em monolito modular ou serviço único. **Executável**: cria, estende e audita repos |
 | [[clean-architecture]] | Entities / Use Cases / Interface Adapters / Frameworks. **Executável**: cria, estende e audita repos |
 | [[typescript-baseline]] | Configuração base de projeto TypeScript (scripts, tsconfig, lint, testes, env, health, CI). Lido junto com `hexagonal` ou `clean-architecture` |
@@ -49,12 +48,4 @@ Os `sdd/plan.md` dos projetos **não repetem** o que está nos playbooks — ape
 
 ## Como adicionar um novo playbook
 
-Quando uma decisão técnica se repete em dois ou mais projetos:
-
-1. Identificar o padrão duplicado nos `sdd/plan.md` de dois projetos
-2. Abrir ADR em `docs/adr/` propondo o novo playbook
-3. Aprovação do arquiteto responsável (ver [[governance]])
-4. Criar o arquivo `.md` aqui e referenciar nos projetos existentes
-
-> Cada playbook que existe aqui nasceu de uma decisão real em um projeto.
-> Decisões experimentais ficam no `sdd/plan.md` até se repetirem.
+Quando uma decisão técnica se repete em dois ou mais SDDs (`plan.md` → Decisões), promova-a: crie o `.md` aqui e passe os `plan.md` a referenciá-lo. Decisões experimentais ficam no `plan.md` até se repetirem.

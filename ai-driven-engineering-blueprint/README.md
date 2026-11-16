@@ -7,15 +7,12 @@
 | O que | Onde |
 |---|---|
 | Regras universais (stack, segurança, qualidade, observabilidade, testes) | [`eng-blueprint/constitution/`](eng-blueprint/constitution/) |
-| Como construímos, por arquitetura (microservice, rest-api, modular-monolith, mvc, hexagonal, clean-architecture) e a configuração base TypeScript | [`eng-blueprint/playbooks/`](eng-blueprint/playbooks/) |
+| Como construímos, por arquitetura (microservice, rest-api, modular-monolith, hexagonal, clean-architecture) e a configuração base TypeScript | [`eng-blueprint/playbooks/`](eng-blueprint/playbooks/) |
 | Template completo de SDD (6 arquivos), para mudanças grandes | [`eng-blueprint/sdd-template/`](eng-blueprint/sdd-template/) |
 | A skill que transforma o documento recebido em refinamento e SDDs | [`.claude/skills/wi-ingest/`](.claude/skills/wi-ingest/) |
 | Instruções curtas para o agente | [`AGENTS.md`](AGENTS.md) (e `CLAUDE.md`, que o importa) |
-| Plano, decisões e estado | [`eng-blueprint/PLANO.md`](eng-blueprint/PLANO.md) |
-| Por que, governança, FAQ, referências, relatórios | [`eng-blueprint/docs/`](eng-blueprint/docs/) |
 | Diagramas (Obsidian) | `eng-blueprint/*.canvas` |
 
-Mais detalhes sobre a estrutura e o uso: [`eng-blueprint/README.md`](eng-blueprint/README.md).
 
 ## A skill `/wi-ingest`
 
@@ -29,4 +26,6 @@ Extração de `.docx`: prefira PDF ou MD; senão `extract-docx.sh` (Linux, macOS
 
 ## Estado
 
-Validada só com dados falsos. Veja `eng-blueprint/docs/relatorio-abordagens.md`.
+Validada só com dados falsos. O ganho de tokens **não está provado**: num teste com histórias falsas a skill gastou ~18% mais tokens que colar o texto, e só ganhou em detecção quando o documento tinha imagem, comentário ou alterações.
+
+**Teste A/B pendente (3 histórias reais):** (A) `CLAUDE.md` curto + texto colado + "plano de mudança + tasks" contra (B) `/wi-ingest` lite. Medir tokens (`/cost`), tempo até a primeira task aprovada, correções no SDD e ambiguidades pegas antes de codar. B só se justifica se gastar ≤ A em tokens **ou** pegar ≥ 1 ambiguidade a mais por história, sem aumentar o tempo de revisão. Empate: ficar com A.

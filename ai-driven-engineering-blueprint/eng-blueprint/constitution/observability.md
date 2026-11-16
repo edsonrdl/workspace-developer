@@ -33,11 +33,6 @@ Todo sistema em produção deve ser **observável** — ou seja, deve ser possí
 - Logs de erro incluem `stack` quando disponível — nunca o payload da requisição
 - Nível `error` apenas para falhas que exigem atenção humana — não para erros esperados de negócio
 
-**O que vai no `sdd/plan.md` do projeto:**
-- Qual biblioteca de logging (Winston, Pino, etc.)
-- Campos adicionais específicos do domínio
-- Destino dos logs (CloudWatch, S3, etc.)
-
 ---
 
 ## Traces
@@ -47,11 +42,6 @@ Todo sistema em produção deve ser **observável** — ou seja, deve ser possí
 - `traceId` propagado para todas as chamadas externas feitas durante a requisição
 - Chamadas a bancos de dados, filas e APIs externas geram spans filhos do trace raiz
 - `traceId` retornado no header de resposta para correlação pelo cliente
-
-**O que vai no `sdd/plan.md` do projeto:**
-- Biblioteca de tracing (OpenTelemetry, AWS X-Ray, etc.)
-- Nome do header de propagação
-- Quais spans criar além dos automáticos
 
 ---
 
@@ -65,10 +55,6 @@ Todo sistema em produção deve ser **observável** — ou seja, deve ser possí
 | Taxa de erros | % de respostas 4xx e 5xx por endpoint |
 | Latência | p50, p95, p99 por endpoint |
 | Saúde das dependências | Status de banco, fila e serviços externos |
-
-**O que vai no `sdd/requirements.md` do projeto:**
-- SLOs específicos (ex: "p99 < 500ms neste endpoint")
-- Métricas de negócio específicas (ex: "pagamentos processados por minuto")
 
 ---
 
@@ -89,4 +75,4 @@ Todo serviço expõe `GET /health`. Formato mínimo obrigatório:
 - `degraded` — serviço funcionando mas com dependência não crítica com problema
 - `unhealthy` — serviço incapaz de processar requisições
 
-Detalhamento do formato por arquitetura está em `playbooks/microservice.md`.
+O código de referência está em [[typescript-baseline]] §7.

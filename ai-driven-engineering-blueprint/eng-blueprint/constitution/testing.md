@@ -41,12 +41,9 @@
 
 ---
 
-## Cobertura mínima
+## Cobertura
 
-- Global: **80%** (ver [[quality]])
-- Cobertura é medida em: branches + functions + lines + statements
-- 100% de cobertura não é o objetivo — cobertura de comportamentos críticos sim
-- Um projeto pode elevar o threshold no `sdd/requirements.md` — nunca abaixar
+O mínimo (80%) e como é medido estão em [[quality]]. 100% não é o objetivo: cobertura de comportamentos críticos sim.
 
 ---
 
@@ -58,13 +55,3 @@
 
 **Regra de ouro:** se o mock ficou mais complexo que o que ele substitui, o design precisa ser revisto — não o teste.
 
----
-
-## O que vai no `sdd/` do projeto
-
-| Arquivo | O que especifica |
-|---|---|
-| `sdd/requirements.md` | NFR de cobertura específica, SLOs que os testes devem validar |
-| `sdd/acceptance.md` | Critérios de aceite em formato Given/When/Then — viram testes |
-| `sdd/plan.md` | Framework de teste escolhido, estratégia de mock específica do projeto |
-| `sdd/tasks.md` | Task específica de testes se a cobertura for complexa |

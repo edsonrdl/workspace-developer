@@ -32,8 +32,6 @@ service-name/
 ├── tests/
 │   ├── unit/
 │   └── integration/
-├── docs/
-│   └── adr/
 ├── terraform/             ← infraestrutura do serviço
 └── README.md
 ```
@@ -75,18 +73,7 @@ Nunca chamar outro serviço dentro de uma transação de banco.
 - Timeout configurado em toda chamada HTTP externa: máximo 5s
 - Retry com backoff exponencial: 3 tentativas
 - Circuit breaker ativo para dependências críticas
-- Health check endpoint obrigatório: `GET /health`
-
-```typescript
-// Resposta do health check
-{
-  status: "healthy" | "degraded" | "unhealthy",
-  dependencies: {
-    database: "healthy" | "unhealthy",
-    queue: "healthy" | "unhealthy"
-  }
-}
-```
+- Health check `GET /health` no formato da [[observability]]
 
 ---
 

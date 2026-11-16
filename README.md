@@ -11,7 +11,6 @@
 | [`ai-driven-engineering-blueprint/`](ai-driven-engineering-blueprint/) | **Regras e ferramentas**: constitution, playbooks, templates de SDD e a skill `/wi-ingest` | quando muda um padrão ou a skill |
 | [`work-items/`](work-items/) | **As histórias**: documento recebido, refinamento de negócio e um SDD por repo | a cada história nova |
 | [`repos-project/`](repos-project/) | **O código**: clones dos repos da empresa, por tipo (`apis/`, `microservices/`…). Cada clone tem o seu próprio remoto e **não é versionado aqui** | ao implementar |
-| [`docs-compass/`](docs-compass/) | **Documentação** de governo ou de time, consultável por IA. Fora do fluxo de histórias | quando muda a documentação |
 
 ## Como as camadas se conectam
 
@@ -24,7 +23,7 @@ documento recebido
                      └─► repos-project/<tipo>/<repo>/     a IA implementa AQUI
 ```
 
-O blueprint dá as **regras** (constitution e playbooks) e a **skill**. O `docs-compass` é um diretório de documentação ao lado e nenhuma skill o lê ou escreve.
+O blueprint dá as **regras** (constitution e playbooks) e a **skill**.
 
 ## Como usar
 
@@ -39,9 +38,9 @@ Veja um exemplo completo em [`work-items/_EXEMPLO-HU-142-pagamento-pix/`](work-i
 ## Estado (honesto)
 
 - A skill foi testada **apenas com dados falsos** e agentes simulando o usuário (notas de 8 a 8,5 em 10). Nada foi validado com um Word real nem com repos reais.
-- O ganho de tokens **não está provado**: num teste com histórias falsas, a skill gastou cerca de 18% **mais** tokens que colar o texto no baseline, e só ganhou em detecção quando o documento tinha conteúdo que o texto colado perde (imagem, comentário, alterações). Detalhes em `ai-driven-engineering-blueprint/eng-blueprint/docs/relatorio-abordagens.md`.
+- O ganho de tokens **não está provado**: num teste com histórias falsas, a skill gastou cerca de 18% **mais** tokens que colar o texto no baseline, e só ganhou em detecção quando o documento tinha conteúdo que o texto colado perde (imagem, comentário, alterações).
 - O extrator de `.docx` foi validado em Windows (PowerShell e Git Bash). **Não foi testado em Linux nem macOS de verdade.**
 
 ## Histórico
 
-Este repositório reúne três repositórios que existiam separados, com o histórico preservado (`git subtree`): `ai-driven-engineering-blueprint`, `docs-compass` (antes `solucao-doc-brq` na pasta local) e `work-items` (começou aqui, sem histórico anterior).
+Este repositório reúne três repositórios que existiam separados, com o histórico preservado (`git subtree`): `ai-driven-engineering-blueprint`, `docs-compass` (removido do workspace; segue no histórico do git) e `work-items` (começou aqui, sem histórico anterior).

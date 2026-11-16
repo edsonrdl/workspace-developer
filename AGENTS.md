@@ -1,6 +1,6 @@
 # AGENTS.md — workspace-developer
 
-Quatro camadas: `ai-driven-engineering-blueprint/` (regras e skill), `work-items/` (histórias), `repos-project/` (clones de código, não versionados aqui) e `docs-compass/` (documentação; fora do fluxo de histórias).
+Três camadas: `ai-driven-engineering-blueprint/` (regras e skill), `work-items/` (histórias) e `repos-project/` (clones de código, não versionados aqui).
 
 **Para usar a skill `/wi-ingest`, abra o Claude Code dentro de `ai-driven-engineering-blueprint/`**: lá estão o `AGENTS.md` com as regras do fluxo, a skill e os caminhos relativos corretos.
 

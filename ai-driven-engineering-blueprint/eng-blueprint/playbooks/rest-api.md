@@ -122,17 +122,6 @@ GET /api/v1/items?page=1&limit=20&sort=createdAt&order=desc
 
 ---
 
-## Logs obrigatórios por request
+## Logs por request
 
-```typescript
-{
-  requestId: string,
-  method: string,
-  path: string,
-  statusCode: number,
-  durationMs: number,
-  userId?: string     // quando autenticado
-}
-```
-
-Nenhum campo de payload no log — apenas metadados de request.
+Além dos campos base da [[observability]]: `method`, `path`, `statusCode`, `durationMs` e `userId?` (quando autenticado). Nenhum campo de payload no log.

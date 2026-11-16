@@ -19,7 +19,7 @@ reads_first: [constitution, typescript-baseline]
 - [[typescript-baseline]]: scripts, tsconfig, ESLint, Vitest, env, health, logger, event bus, CI. **Leia antes** deste
 - [[hexagonal]]: compartilha o `shared-kernel`, os modos de trabalho e o processo de AUDIT (§14.1 a §14.3 de lá). Este arquivo traz só o que **muda**
 - [[modular-monolith]]: este playbook é a forma Clean do monolito modular (a regra de `index.ts` público vira a pasta `api/`)
-- [[rest-api]], [[microservice]], [[testing]], [[quality]], [[security]], [[observability]], [[documentation]], [[governance]]
+- [[rest-api]], [[microservice]], [[testing]], [[quality]], [[security]], [[observability]]
 
 ---
 
@@ -63,8 +63,8 @@ O fluxo de controle vai para fora; a **dependência de código aponta para dentr
 ## 2. Quando usar e quando não usar
 
 **Use:** domínio rico, regras que mudam, vários times, crescimento previsto, possível extração futura.
-**Não use:** CRUD sem regra, MVP descartável. Aí [[mvc]] ou [[rest-api]] simples bastam.
-**Clean ou Hexagonal?** Mesma proteção. Escolha **Hexagonal** quando o sistema tem muitas integrações e a simetria "entra por uma porta, sai por outra" ajuda; **Clean** quando o time já pensa em Use Cases/Entities e quer o domínio com seus gateways juntos. A escolha vira ADR `001-arquitetura.md`.
+**Não use:** CRUD sem regra, MVP descartável. Aí uma [[rest-api]] simples em camadas basta.
+**Clean ou Hexagonal?** Mesma proteção. Escolha **Hexagonal** quando o sistema tem muitas integrações e a simetria "entra por uma porta, sai por outra" ajuda; **Clean** quando o time já pensa em Use Cases/Entities e quer o domínio com seus gateways juntos. A escolha fica registrada em Decisões no `plan.md` do SDD.
 
 ---
 
@@ -108,7 +108,6 @@ Idênticos aos de [[hexagonal]] §3 (`serviceName`, `modules[]`, `topology`, `ht
 │   │       └── {{module}}.module.ts       ← composition root do módulo
 │   └── bootstrap/                         ← igual ao de [[hexagonal]] §4 (só compõe)
 ├── tests/{integration,e2e}/
-├── docs/adr/001-arquitetura.md
 ├── .dependency-cruiser.cjs · eslint.config.js · tsconfig*.json · vitest.config.ts
 ├── package.json · .env.example · .gitignore · README.md · CHANGELOG.md
 ```
@@ -425,7 +424,7 @@ Pirâmide e cobertura de [[testing]] (≥ 80%).
 6. `bootstrap/app.ts` e `main.ts` (config → infra com as libs do plan → `buildApp` → HTTP com `GET /health`).
 7. Instalar **só** as dependências declaradas.
 8. Testes das camadas (§9).
-9. README, CHANGELOG, `docs/adr/001-arquitetura.md`.
+9. README e `.env.example`.
 10. `npm run verify` até ficar verde.
 11. **Prova de proteção:** importar temporariamente uma lib npm em `domain/`, depois um `../../other/domain/...` em outro módulo, e um `infrastructure` dentro de `application`; confirmar que `npm run arch` **falha** em cada um; remover. Registrar.
 12. Relatar o que foi criado, o `verify` real e as pendências. **Não commitar.**
@@ -441,7 +440,7 @@ Pirâmide e cobertura de [[testing]] (≥ 80%).
 4. Registrar em `bootstrap/app.ts` na ordem de dependência.
 5. Schema/prefixo e migration próprios; **sem FK** para outro módulo.
 6. Outro módulo necessário: gateway no `domain` + ACL em `infrastructure/<outro>`; reação a evento: `interface/events`.
-7. Testes + `npm run verify`; README/ADR se a fronteira for decisão nova.
+7. Testes + `npm run verify`; README; decisão nova de fronteira vai em Decisões no `plan.md`.
 
 ### 11.2 `ADD-USE-CASE`
 1. Pasta `application/use-cases/<verb-noun>/` com `*.input.ts`, `*.output.ts`, `*.interactor.ts`.
@@ -478,9 +477,9 @@ Classificação de layout: **A** em camadas/MVC · **B** parcialmente Clean (há
 | C-15 | Schema/prefixo por módulo; sem FK/JOIN entre módulos | migrations | B |
 | C-16 | `process.env` só em `bootstrap/config.ts`; `GET /health` ok; sem `console.*`/`any` | `npm run lint` + teste | M |
 | C-17 | Cobertura ≥ 80%; `npm audit` sem alta/crítica | `npm run verify` | B |
-| C-18 | ADR da arquitetura, README, CHANGELOG | existência | m |
+| C-18 | README e `.env.example` | existência | m |
 
-Anti-padrões típicos: **over-engineering em CRUD** (use [[mvc]]); **entity anêmica** (mover regra do service para a entity); **vazamento de framework no domain**; **interactor "faz-tudo"**; **módulo acessando internals do vizinho** (use `api/` + ACL).
+Anti-padrões típicos: **over-engineering em CRUD** (use camadas simples); **entity anêmica** (mover regra do service para a entity); **vazamento de framework no domain**; **interactor "faz-tudo"**; **módulo acessando internals do vizinho** (use `api/` + ACL).
 
 ---
 
@@ -489,7 +488,7 @@ Anti-padrões típicos: **over-engineering em CRUD** (use [[mvc]]); **entity an�
 - [ ] `npm run verify` verde, com o resultado real colado no relatório
 - [ ] Prova de proteção feita (SCAFFOLD/ADD-MODULE)
 - [ ] Nenhuma lib fora do `plan.md`; nenhum segredo
-- [ ] ADR/README/CHANGELOG atualizados
+- [ ] README atualizado
 - [ ] Dúvidas de negócio como `[NEEDS CLARIFICATION]`
 - [ ] Nada commitado sem pedido
 

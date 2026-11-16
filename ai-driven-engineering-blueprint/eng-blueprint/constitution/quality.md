@@ -10,7 +10,6 @@
 - ESLint obrigatório com configuração do repositório de padrões da empresa
 - `npm run lint` sem erros é pré-requisito para merge
 - Sem `any` explícito em TypeScript sem comentário de justificativa no código
-- Sem `console.log` em produção — usar logger estruturado (ver [[observability]])
 
 ---
 
@@ -36,4 +35,17 @@
 
 - Todo merge requer ao menos uma aprovação
 - Aprovação automática de bot não substitui revisão humana em mudanças de lógica
-- Mudanças em `sdd/` e `docs/adr/` revisadas com o mesmo rigor que o código
+- Mudanças em `sdd/` revisadas com o mesmo rigor que o código
+
+---
+
+## README mínimo
+
+Todo repo tem `README.md` com: o que é, como rodar localmente, variáveis de ambiente (nome e descrição, sem valores; `.env.example`), como rodar os testes e como fazer deploy (ou link do pipeline).
+
+
+---
+
+## README mínimo
+
+Todo repo tem `README.md` com: o que é, como rodar localmente, variáveis de ambiente (nome e descrição, sem valores; `.env.example`), como rodar os testes e como fazer deploy (ou link do pipeline).
