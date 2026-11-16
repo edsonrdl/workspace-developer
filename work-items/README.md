@@ -4,7 +4,7 @@
 
 **Quem escreve aqui:** a skill `/wi-ingest`, do [blueprint](../ai-driven-engineering-blueprint/). Você solta o documento em `_entrada/`.
 
-> Repositório privado: as pastas das histórias reais contêm documentos de negócio.
+> **Atenção:** este repositório é público. As pastas das histórias reais (`<ID>-<slug>/`) contêm documentos de negócio e estão no `.gitignore` enquanto o repo for público; só o exemplo (`_EXEMPLO-*`) é versionado.
 
 ```
 work-items/

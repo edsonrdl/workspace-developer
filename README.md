@@ -2,7 +2,7 @@
 
 Área de trabalho para evoluir **histórias de negócio em código com IA**: o que se recebe vira refinamento versionado, o refinamento vira SDD técnico (um por repositório) e a IA implementa no repo apontado.
 
-> **Este repositório deve ser PRIVADO.** Ele guarda documentos de negócio recebidos, refinamentos e planos de implementação.
+> **Este repositório é PÚBLICO.** Não commite documentos de negócio reais, refinamentos ou SDDs de projetos da empresa aqui. As histórias reais em `work-items/` estão no `.gitignore` por isso. Antes de versioná-las, torne o repositório **privado** e remova a regra marcada no `.gitignore`.
 
 ## As camadas
 

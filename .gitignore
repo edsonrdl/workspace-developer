@@ -19,3 +19,8 @@
 node_modules/
 dist/
 coverage/
+
+# ENQUANTO ESTE REPO FOR PÚBLICO: histórias reais (documentos de negócio) NÃO são versionadas.
+# Pastas que começam com "_" (exemplo, entrada) continuam versionadas.
+# Quando o repo for privado, apague a linha abaixo.
+/work-items/[!_]*/
