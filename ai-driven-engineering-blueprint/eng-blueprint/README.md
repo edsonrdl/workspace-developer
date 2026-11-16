@@ -12,7 +12,7 @@
 ```
 eng-blueprint/
 ├── constitution/   ← regras universais inegociáveis (índice: constitution.md)
-├── playbooks/      ← "como construímos" por arquitetura (microservice, rest-api, modular-monolith, mvc)
+├── playbooks/      ← "como construímos" por arquitetura (microservice, rest-api, modular-monolith, mvc, hexagonal, clean-architecture, typescript-baseline)
 ├── sdd-template/   ← template do SDD de implementação (spec → requirements → contracts → acceptance → plan → tasks)
 ├── docs/           ← contexto sob demanda (não precisa ser lido para trabalhar)
 ├── PLANO.md        ← plano de evolução (fases e status)

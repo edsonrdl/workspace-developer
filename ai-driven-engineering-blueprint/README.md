@@ -7,7 +7,7 @@
 | O que | Onde |
 |---|---|
 | Regras universais (stack, segurança, qualidade, observabilidade, testes) | [`eng-blueprint/constitution/`](eng-blueprint/constitution/) |
-| Como construímos, por arquitetura (microservice, rest-api, modular-monolith, mvc) | [`eng-blueprint/playbooks/`](eng-blueprint/playbooks/) |
+| Como construímos, por arquitetura (microservice, rest-api, modular-monolith, mvc, hexagonal, clean-architecture) e a configuração base TypeScript | [`eng-blueprint/playbooks/`](eng-blueprint/playbooks/) |
 | Template completo de SDD (6 arquivos), para mudanças grandes | [`eng-blueprint/sdd-template/`](eng-blueprint/sdd-template/) |
 | A skill que transforma o documento recebido em refinamento e SDDs | [`.claude/skills/wi-ingest/`](.claude/skills/wi-ingest/) |
 | Instruções curtas para o agente | [`AGENTS.md`](AGENTS.md) (e `CLAUDE.md`, que o importa) |
