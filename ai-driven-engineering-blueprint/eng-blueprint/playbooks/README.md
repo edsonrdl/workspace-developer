@@ -38,11 +38,10 @@ Os `sdd/plan.md` dos projetos **não repetem** o que está nos playbooks — ape
 | [[microservice]] | Construindo um serviço independente com deploy próprio |
 | [[rest-api]] | Expondo endpoints HTTP — contratos, envelope, autenticação |
 | [[modular-monolith]] | Aplicação única com módulos bem delimitados |
-| [[hexagonal]] | Ports & Adapters, em monolito modular ou serviço único. **Executável**: cria, estende e audita repos |
-| [[clean-architecture]] | Entities / Use Cases / Interface Adapters / Frameworks. **Executável**: cria, estende e audita repos |
-| [[typescript-baseline]] | Configuração base de projeto TypeScript (scripts, tsconfig, lint, testes, env, health, CI). Lido junto com `hexagonal` ou `clean-architecture` |
+| [[hexagonal]] | Template descritivo de Ports & Adapters: estrutura de pastas, responsabilidade de cada camada e onde fica cada código |
+| [[clean-architecture]] | Template descritivo de Entities / Use Cases / Interface Adapters / Frameworks, com a mesma estrutura de leitura |
 
-> Os playbooks `hexagonal` e `clean-architecture` têm front-matter de skill (`name`, `description`, `modes`) e quatro modos (`SCAFFOLD`, `ADD-MODULE`, `ADD-USE-CASE`, `AUDIT`). Para usar com qualquer agente: *"leia `playbooks/hexagonal.md` e faça SCAFFOLD do repo X"* ou *"faça AUDIT do repo X com `playbooks/clean-architecture.md`"*.
+> `hexagonal` e `clean-architecture` são **alternativas independentes**: escolha uma por projeto e registre a escolha em Decisões no `plan.md`. Ambas descrevem a arquitetura sem código e sem linguagem específica; as bibliotecas e ferramentas vêm do `plan.md`.
 
 ---
 

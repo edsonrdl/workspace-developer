@@ -74,5 +74,3 @@ Todo serviço expõe `GET /health`. Formato mínimo obrigatório:
 - `healthy` — tudo operacional
 - `degraded` — serviço funcionando mas com dependência não crítica com problema
 - `unhealthy` — serviço incapaz de processar requisições
-
-O código de referência está em [[typescript-baseline]] §7.

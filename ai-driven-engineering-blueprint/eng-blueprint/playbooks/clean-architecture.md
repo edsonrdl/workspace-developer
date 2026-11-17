@@ -1,499 +1,364 @@
 ---
 name: clean-architecture
-description: Cria, estende ou audita um repo TypeScript/Node em Clean Architecture (Entities, Use Cases, Interface Adapters, Frameworks & Drivers), como monolito modular ou serviço único. Gera estrutura, código base, configuração e verificação automática da regra de dependência.
+description: Template descritivo da Clean Architecture (Entities, Use Cases, Interface Adapters, Frameworks & Drivers) para monolito modular ou serviço único. Define a estrutura de pastas, a responsabilidade de cada camada, onde fica cada tipo de código e a regra da dependência. Sem código e sem linguagem específica.
 status: proposto
-modes: [SCAFFOLD, ADD-MODULE, ADD-USE-CASE, AUDIT]
-reads_first: [constitution, typescript-baseline]
 ---
 
-# Pattern: Clean Architecture
+# Template: Clean Architecture
 
-> Playbook executável, escrito para que **qualquer agente** (Claude Code, Codex, Cursor, Copilot, Gemini…) leia e consiga **criar, estender ou auditar** um repo sem adivinhar. É o par do playbook [[hexagonal]]: a proteção do domínio é a mesma, muda a organização das camadas e o vocabulário.
-> Base conceitual (o *porquê*) está na base de conhecimento do Obsidian, nota `Template Monolítico Modular (Multi-Module Clean Architecture)`. Este playbook é a versão **operacional**, adaptada à stack aprovada (TypeScript).
+> Este arquivo descreve **onde cada coisa fica e por quê**. Não traz código nem depende de linguagem ou biblioteca: as escolhas técnicas do projeto (framework HTTP, banco, logger, testes) vêm do `plan.md` do SDD. Serve para montar a arquitetura base de um repo novo, estender um repo existente e revisar se um repo está aderente.
 
 ---
 
 ## Referências
 
 - [[constitution]] manda: em conflito, ela vence este arquivo
-- [[typescript-baseline]]: scripts, tsconfig, ESLint, Vitest, env, health, logger, event bus, CI. **Leia antes** deste
-- [[hexagonal]]: compartilha o `shared-kernel`, os modos de trabalho e o processo de AUDIT (§14.1 a §14.3 de lá). Este arquivo traz só o que **muda**
-- [[modular-monolith]]: este playbook é a forma Clean do monolito modular (a regra de `index.ts` público vira a pasta `api/`)
-- [[rest-api]], [[microservice]], [[testing]], [[quality]], [[security]], [[observability]]
+- [[rest-api]]: contrato HTTP da camada de interface
+- [[testing]], [[quality]], [[security]], [[observability]]
 
 ---
 
-## 0. Como o agente usa este arquivo
+## 1. Ideia central
 
-**Ordem de leitura:** `constitution` (só as seções citadas) → [[typescript-baseline]] → este arquivo → `sdd/plan.md`.
-**Precedência:** constitution > typescript-baseline > este playbook > `sdd/plan.md`.
+A regra é uma só: **a dependência de código sempre aponta para dentro**. O fluxo de execução vai para fora (a requisição entra, o banco é consultado), mas quem **conhece** quem é decidido de fora para dentro.
 
-| Pedido do usuário | Modo | Vá para |
+```
+   interface ──────┐                    ← controllers, presenters, assinantes de evento
+                   ├──►  application ──►  domain
+   infrastructure ─┘     (use cases)      (entities, gateways)
+   (banco, fila, APIs)
+```
+
+| Camada | Papel | Conhece |
 |---|---|---|
-| "crie o projeto/serviço em clean architecture" | `SCAFFOLD` | §10 |
-| "crie o módulo/contexto X" | `ADD-MODULE` | §11.1 |
-| "crie o caso de uso Y no módulo X" | `ADD-USE-CASE` | §11.2 |
-| "confira/ajuste este repo" | `AUDIT` | §12 |
+| `domain` (Entities) | regra de negócio da empresa; define também as **interfaces (gateways)** que exige do mundo | ninguém |
+| `application` (Use Cases) | regra de aplicação; orquestra as entities por meio dos gateways | só o `domain` |
+| `interface` (Interface Adapters) | traduz entrada e saída: controller, presenter, formato HTTP, assinante de evento | só a `application` |
+| `infrastructure` (Frameworks & Drivers) | implementa os gateways com tecnologia real: banco, fila, APIs | só o `domain` |
 
-**Antes de escrever:** preencha os parâmetros (§3). **Depois de qualquer modo:** `npm run verify` e relate o resultado real.
-**Proibido:** commitar/push sem pedido explícito; instalar lib não declarada; inventar regra de negócio (`[NEEDS CLARIFICATION: …]`); escrever em outro repo.
-
----
-
-## 1. Princípio fundamental
-
-```
-   interface ─┐                     ← controllers, presenters, event subscribers
-              ├──►  application  ──►  domain          ← regra da dependência:
-   infrastructure ─┘  (use cases)      (entities,         SEMPRE de fora para dentro
-   (banco, fila, APIs)                   gateways)
-```
-
-- `domain` (Entities): regra de negócio da empresa, **não conhece ninguém**; define também as **interfaces (gateways)** que exige do mundo.
-- `application` (Use Cases): regra de aplicação; orquestra entities via gateways; conhece só o `domain`.
-- `interface` (Interface Adapters): traduz entrada/saída (controller, presenter, DTO HTTP, subscriber de evento); conhece só a `application`.
-- `infrastructure` (Frameworks & Drivers): implementa os gateways com tecnologia real (banco, fila, APIs); conhece só o `domain`.
 - `interface` e `infrastructure` **não se enxergam**.
-- **Entre módulos:** só o `api/` do vizinho.
+- **Entre módulos:** um módulo só usa a pasta `api/` do outro.
 
-O fluxo de controle vai para fora; a **dependência de código aponta para dentro**. Verificado por `npm run arch`.
+Estas regras devem ser verificadas por uma **ferramenta automática de arquitetura** da stack (regra de dependências no pipeline). Sem essa verificação verde, não há merge.
 
 ---
 
 ## 2. Quando usar e quando não usar
 
-**Use:** domínio rico, regras que mudam, vários times, crescimento previsto, possível extração futura.
-**Não use:** CRUD sem regra, MVP descartável. Aí uma [[rest-api]] simples em camadas basta.
-**Clean ou Hexagonal?** Mesma proteção. Escolha **Hexagonal** quando o sistema tem muitas integrações e a simetria "entra por uma porta, sai por outra" ajuda; **Clean** quando o time já pensa em Use Cases/Entities e quer o domínio com seus gateways juntos. A escolha fica registrada em Decisões no `plan.md` do SDD.
+**Use** quando há: domínio rico, regras que mudam, vários times, crescimento previsto, possível extração futura de módulos.
+
+**Não use** para: CRUD sem regra, MVP descartável. Nesses casos uma [[rest-api]] simples em camadas basta.
+
+Prefira esta arquitetura quando o time já pensa em Use Cases e Entities e quer o domínio com seus gateways juntos. A escolha da arquitetura fica registrada em Decisões no `plan.md` do SDD.
 
 ---
 
-## 3. Parâmetros
+## 3. O que definir antes de montar (vem do `plan.md`)
 
-Idênticos aos de [[hexagonal]] §3 (`serviceName`, `modules[]`, `topology`, `httpFramework`, `testRunner`, `dbAccess`, `logger`, `iac`). Faltou e é "perguntar": pergunte antes de gerar. Nomes de módulo em `kebab-case`, inglês.
+| Item | O que é | Exemplo |
+|---|---|---|
+| Nome do serviço | identifica o repo e os logs | `shop` |
+| Módulos | um por contexto de negócio (bounded context) | `catalog`, `orders` |
+| Topologia | `monolito modular` (vários módulos) ou `serviço único` (um módulo) | monolito modular |
+| Framework HTTP | quem recebe as requisições | definido no plan |
+| Acesso a dados | driver ou ORM | definido no plan |
+| Logger e testes | ferramentas padrão do projeto | definido no plan |
+| Infraestrutura como código | só se o SDD pedir infra | definido no plan |
+
+Faltou algum item? Pergunte antes de decidir; não escolha biblioteca por conta própria. Nomes de módulo: minúsculas, em inglês, substantivo do negócio. Em serviço único, existe **um** módulo.
 
 ---
 
-## 4. Estrutura de pastas obrigatória
+## 4. Estrutura de pastas
 
 ```
-{{service-name}}/
+<nome-do-servico>/
 ├── src/
-│   ├── shared-kernel/                     ← igual ao de [[hexagonal]] §4
+│   ├── shared-kernel/                  ← mínimo e estável; sem framework
+│   │   ├── domain/                     ← tipos base: raiz de agregado, evento de domínio,
+│   │   │                                 erro de domínio, dinheiro
+│   │   ├── application/                ← contrato de transação (unit of work)
+│   │   ├── events/                     ← contrato do barramento de eventos
+│   │   ├── observability/              ← contrato do logger
+│   │   └── persistence/                ← contrato mínimo de acesso ao banco
+│   │
 │   ├── modules/
-│   │   └── {{module}}/
-│   │       ├── api/                       ← CONTRATO PÚBLICO (único ponto de saída)
-│   │       │   ├── index.ts · {{module}}.api.ts · events.ts
-│   │       ├── domain/                    ← Entities (Enterprise Business Rules)
-│   │       │   ├── entities/              ← aggregate roots e entidades
-│   │       │   ├── value-objects/
-│   │       │   ├── services/              ← domain services
-│   │       │   ├── events/                ← domain events
-│   │       │   ├── gateways/              ← INTERFACES que o domínio exige (repositórios, serviços externos)
-│   │       │   └── errors/
-│   │       ├── application/               ← Use Cases (Application Business Rules)
-│   │       │   ├── use-cases/
-│   │       │   │   └── create-order/
-│   │       │   │       ├── create-order.interactor.ts
-│   │       │   │       ├── create-order.input.ts
-│   │       │   │       └── create-order.output.ts
-│   │       │   └── facade/                ← implementa a interface de api/
-│   │       ├── interface/                 ← Interface Adapters
-│   │       │   ├── http/                  ← controllers, request/response DTOs, presenters, error-mapper
-│   │       │   └── events/                ← subscribers de eventos de OUTROS módulos
-│   │       ├── infrastructure/            ← Frameworks & Drivers
-│   │       │   ├── persistence/           ← repositórios (impl de gateways), mappers, migrations
-│   │       │   ├── {{other-module}}/      ← ACL para outro módulo (usa só o api/ dele)
-│   │       │   └── messaging/             ← publicação no EventBus
-│   │       └── {{module}}.module.ts       ← composition root do módulo
-│   └── bootstrap/                         ← igual ao de [[hexagonal]] §4 (só compõe)
-├── tests/{integration,e2e}/
-├── .dependency-cruiser.cjs · eslint.config.js · tsconfig*.json · vitest.config.ts
-├── package.json · .env.example · .gitignore · README.md · CHANGELOG.md
+│   │   └── <modulo>/                   ← UM contexto de negócio
+│   │       ├── api/                    ← CONTRATO PÚBLICO: única porta de saída do módulo
+│   │       │   ├── interface pública   ← o que outros módulos podem chamar
+│   │       │   └── eventos             ← eventos de integração publicados
+│   │       ├── domain/                 ← Entities (regras de negócio da empresa)
+│   │       │   ├── entities/           ← agregados e entidades
+│   │       │   ├── value-objects/      ← objetos de valor
+│   │       │   ├── services/           ← regras que envolvem mais de um agregado
+│   │       │   ├── events/             ← eventos de domínio
+│   │       │   ├── gateways/           ← INTERFACES que o domínio exige do mundo
+│   │       │   └── errors/             ← erros de regra de negócio
+│   │       ├── application/            ← Use Cases (regras de aplicação)
+│   │       │   ├── use-cases/<caso>/   ← por caso de uso: interactor + input + output
+│   │       │   └── facade/             ← implementa a interface pública de api/
+│   │       ├── interface/              ← Interface Adapters
+│   │       │   ├── http/               ← controllers, presenters, formato request/response, mapeador de erros
+│   │       │   └── events/             ← assinantes de eventos de OUTROS módulos
+│   │       ├── infrastructure/         ← Frameworks & Drivers
+│   │       │   ├── persistence/        ← repositórios (implementam gateways), mapeadores, migrations
+│   │       │   ├── <outro-modulo>/     ← anticorruption layer para outro módulo (usa só o api/ dele)
+│   │       │   └── messaging/          ← publicação no barramento de eventos
+│   │       └── composição do módulo    ← único lugar que liga as camadas do módulo
+│   │
+│   └── bootstrap/                      ← só compõe: nenhuma regra de negócio
+│       ├── ponto de entrada · configuração (único leitor de variáveis de ambiente)
+│       ├── health check · barramento de eventos
+│       └── montagem da aplicação       ← instancia os módulos na ordem das dependências
+│
+├── tests/
+│   ├── integration/                    ← infraestrutura com banco/serviço real ou container
+│   └── e2e/                            ← fluxos completos pela borda HTTP
+├── sdd/                                ← quando existir
+├── configuração da ferramenta de arquitetura (regras de dependência)
+├── configuração de lint, build e testes do projeto
+└── README, .env.example, .gitignore
 ```
 
-Testes unitários ao lado do código. Em `single-service`, um único módulo.
+- **Serviço único:** a mesma árvore, com um único módulo.
+- **Testes unitários** ficam ao lado do código que testam.
 
 ---
 
-## 5. Responsabilidades e onde colocar cada código
+## 5. Responsabilidade de cada pasta
 
-| Pasta | Responsabilidade | Pode importar | Não pode importar |
+| Pasta | Responsabilidade | Pode depender de | Não pode depender de |
 |---|---|---|---|
-| `shared-kernel` | tipos base e contratos técnicos | nada | módulos, bootstrap, npm |
-| `{{m}}/api` | contrato público | `shared-kernel` | domain, application, interface, infrastructure, npm |
-| `{{m}}/domain` | entities, VOs, gateways, regra de negócio | `shared-kernel`, o próprio `domain` | application, interface, infrastructure, outros módulos, npm |
-| `{{m}}/application` | use cases (interactors), input/output | o próprio `domain`, `api` de outros, `shared-kernel` | interface, infrastructure, npm |
-| `{{m}}/interface` | controllers, presenters, DTOs HTTP, subscribers | `application` (use cases, input/output), libs de HTTP | `infrastructure`, `domain` direto |
-| `{{m}}/infrastructure` | implementa gateways com tecnologia | `domain` (gateways, entities), `api` de outros, libs | `interface`, `application` |
-| `{{m}}.module.ts` | composition root | todas as camadas do módulo, `api` de outros | — |
-| `bootstrap` | liga módulos, config, `main` | `*.module.ts`, `shared-kernel` | camadas internas |
+| `shared-kernel` | tipos base e contratos técnicos mínimos | nada | módulos, bootstrap, bibliotecas externas |
+| `<m>/api` | contrato público do módulo | `shared-kernel` | domain, application, interface, infrastructure, bibliotecas externas |
+| `<m>/domain` | entities, objetos de valor, gateways e regra de negócio | `shared-kernel` e o próprio domain | application, interface, infrastructure, outros módulos, bibliotecas externas |
+| `<m>/application` | use cases (interactors), input e output | o próprio domain, `api` de outros módulos, `shared-kernel` | interface, infrastructure, bibliotecas externas |
+| `<m>/interface` | controllers, presenters, formato HTTP, assinantes de evento | `application` (use cases, input/output), bibliotecas de HTTP | infrastructure, domain direto |
+| `<m>/infrastructure` | implementa gateways com tecnologia | domain (gateways, entities), `api` de outros módulos, bibliotecas | interface, application |
+| composição do módulo | liga as camadas do módulo | todas as camadas do próprio módulo, `api` de outros | — |
+| `bootstrap` | liga módulos, configuração e inicialização | composição dos módulos, `shared-kernel` | camadas internas dos módulos |
 
-| Tipo de código | Local |
+### Onde colocar cada tipo de código
+
+| O que é | Onde fica |
 |---|---|
-| Validação de **formato** | `interface/http` |
-| Validação/cálculo de **negócio** | `domain/entities` ou `domain/services` |
-| Orquestração, transação, autorização | `application/use-cases/<x>/*.interactor.ts` |
-| JSON ↔ Input/Output | `interface/http` (controller e presenter) |
-| Formatar o Output para a resposta HTTP | `interface/http/*.presenter.ts` |
-| Banco, cache, API externa | `infrastructure/*` |
-| Chamada a outro módulo | `infrastructure/<modulo>` com ACL |
-| Evento de negócio / que cruza módulos | `domain/events` / `api/events.ts` |
-| `process.env` | **somente** `bootstrap/config.ts` |
+| Validação de **formato** (obrigatório, tamanho, e-mail) | `interface/http` |
+| Validação e cálculo de **negócio** | `domain` (entity ou domain service) |
+| Orquestração, transação, autorização | interactor em `application/use-cases` |
+| JSON ↔ input/output | `interface/http` (controller) |
+| Formatar o output como resposta HTTP | presenter em `interface/http` |
+| Autenticação (token, sessão) | `interface/http` (middleware) |
+| Banco, cache, API externa | `infrastructure` |
+| Chamada a outro módulo | `infrastructure/<modulo>` com anticorruption layer |
+| Evento de negócio (algo ocorreu) | `domain/events` |
+| Evento que cruza módulos | eventos em `api/` |
+| Montagem de dependências | composição do módulo e `bootstrap` |
+| Variáveis de ambiente | **somente** a configuração do `bootstrap` |
+
+**Triagem rápida:** a decisão depende de conhecimento de negócio ou é só execução técnica? Negócio vai para o `domain`; técnica vai para `interface` ou `infrastructure`. O use case apenas **chama** a decisão que a entity tomou.
 
 ---
 
-## 6. Especificação de código (templates)
+## 6. Papel de cada peça
 
-> `shared-kernel` (AggregateRoot, DomainEvent, DomainError, Money, UnitOfWork, EventBus, Logger, SqlClient) e o aggregate `Order` são **idênticos** aos de [[hexagonal]] §6.1 e §6.2; muda só a pasta: `domain/entities/order.ts`. Código em **inglês** ([[quality]]).
+### 6.1 shared-kernel
+Só o que todos os módulos realmente compartilham e quase nunca muda: raiz de agregado (guarda os eventos pendentes), evento de domínio, erro de domínio (com código e tipo: não encontrado, conflito, inválido, proibido), dinheiro (sempre em valor inteiro da menor unidade, nunca decimal flutuante) e os contratos técnicos mínimos (transação, barramento de eventos, logger, acesso ao banco). Se um item é usado por um módulo só, ele não é do kernel.
 
-### 6.1 domain: gateways (interfaces do domínio)
+### 6.2 domain (Entities)
+- A **entity** (agregado) é a raiz de consistência: guarda as invariantes e muda de estado **só por métodos de negócio**. Entity rica tem comportamento; entity que só tem getters e setters é anêmica e é um defeito.
+- **Objetos de valor** são imutáveis e comparados pelo valor.
+- **Domain services** ficam com regras que envolvem mais de um agregado.
+- **Eventos de domínio** registram o que aconteceu; a entity os acumula e quem persiste decide quando publicá-los.
+- **Gateways:** interfaces que o domínio exige do mundo (repositório, consulta a outro módulo, publicação de evento). Ficam **no domínio**, expressas em **tipos próprios do módulo**; a implementação mora na `infrastructure`.
+- **Sem I/O, sem biblioteca externa e sem relógio solto:** se a hora importa para a regra, ela entra como dependência fornecida pela `application`.
 
-```ts
-// src/modules/orders/domain/gateways/order.repository.ts
-import type { Order } from '../entities/order';
+### 6.3 application (Use Cases)
+- **Interactor:** uma pasta por caso de uso, com o interactor, o **input** e o **output**. Carrega o necessário pelos gateways, chama a entity, abre a transação, persiste e publica eventos. **Não decide regra de negócio e não conhece tecnologia.**
+- **Input e output:** dados simples; nunca a entity.
+- Se um use case precisa ser chamado por mais de um adapter ou trocado em teste, extrai-se uma interface do use case na `application` e o controller passa a depender dela.
+- **Facade:** implementa a interface pública de `api/` para os outros módulos, devolvendo dados simples.
 
-export interface OrderRepository {
-  save(order: Order): Promise<void>;
-  findById(id: string): Promise<Order | undefined>;
-}
-```
+### 6.4 api (contrato público)
+Só interfaces, dados simples e constantes de eventos. **Nunca** expõe entity. Mudar algo aqui é mudar contrato: afeta todos os módulos consumidores, então muda com cuidado e com versão de evento.
 
-```ts
-// src/modules/orders/domain/gateways/catalog.gateway.ts — serviço de outro módulo, com tipos PRÓPRIOS de orders
-export interface SellableProduct { readonly id: string; readonly priceCents: number; readonly currency: string; }
-export interface CatalogGateway { findSellableProduct(productId: string): Promise<SellableProduct | undefined>; }
-```
+### 6.5 interface (Interface Adapters)
+- **Controller:** fino. Valida o formato, monta o input, chama o use case e entrega o output ao presenter.
+- **Presenter:** transforma o output na resposta HTTP padrão de [[rest-api]].
+- **Mapeador de erros:** converte erro de domínio em resposta HTTP; erro inesperado vira 500 genérico, sem vazar detalhe interno.
+- **Assinantes de evento:** recebem o evento de outro módulo (usando só o `api/` dele) e chamam um use case.
 
-```ts
-// src/modules/orders/domain/gateways/event-publisher.gateway.ts
-import type { IntegrationEvent } from '../../../../shared-kernel/events/event-bus';
-export interface EventPublisherGateway { publish(event: IntegrationEvent): Promise<void>; }
-```
+### 6.6 infrastructure (Frameworks & Drivers)
+- **Repositório:** implementa o gateway de persistência e converte entre entity e modelo do banco por um **mapeador** (a entity nunca é o modelo de persistência).
+- **Anticorruption layer:** implementa o gateway que fala com outro módulo, usando só o `api/` dele, e traduz o modelo alheio para o modelo próprio.
+- **Publicador de eventos:** entrega o evento ao barramento.
+- A infraestrutura **não decide fluxo de negócio** e **não chama use cases**: só executa o que o gateway pede.
 
-### 6.2 application: use case (interactor + input + output)
-
-```ts
-// src/modules/orders/application/use-cases/create-order/create-order.input.ts · create-order.output.ts
-export interface CreateOrderInput {
-  readonly customerId: string;
-  readonly items: readonly { readonly productId: string; readonly quantity: number }[];
-}
-export interface CreateOrderOutput { readonly orderId: string; readonly totalCents: number; readonly currency: string; }
-```
-
-```ts
-// src/modules/orders/application/use-cases/create-order/create-order.interactor.ts
-// Orquestra; NÃO tem regra de negócio e NÃO conhece tecnologia. Depende só de gateways do domain.
-import { Money } from '../../../../../shared-kernel/domain/money';
-import type { UnitOfWork } from '../../../../../shared-kernel/application/unit-of-work';
-import { Order } from '../../../domain/entities/order';
-import { ProductNotFoundError } from '../../../domain/errors/product-not-found.error';
-import type { OrderRepository } from '../../../domain/gateways/order.repository';
-import type { CatalogGateway } from '../../../domain/gateways/catalog.gateway';
-import type { EventPublisherGateway } from '../../../domain/gateways/event-publisher.gateway';
-import type { CreateOrderInput } from './create-order.input';
-import type { CreateOrderOutput } from './create-order.output';
-
-export class CreateOrderInteractor {
-  constructor(
-    private readonly orders: OrderRepository,
-    private readonly catalog: CatalogGateway,
-    private readonly events: EventPublisherGateway,
-    private readonly uow: UnitOfWork,
-  ) {}
-
-  async execute(input: CreateOrderInput): Promise<CreateOrderOutput> {
-    const order = Order.create(input.customerId);
-    for (const item of input.items) {
-      const product = await this.catalog.findSellableProduct(item.productId);
-      if (!product) throw new ProductNotFoundError(item.productId);
-      order.addItem(product.id, item.quantity, Money.of(product.priceCents, product.currency)); // regra: entity
-    }
-    order.confirm();
-
-    await this.uow.run(async () => { await this.orders.save(order); });
-
-    for (const e of order.pullEvents()) {
-      await this.events.publish({
-        eventId: e.eventId, eventType: e.eventType, occurredAt: e.occurredAt, version: 1,
-        payload: { orderId: order.id, items: order.snapshot().items.map(i => ({ productId: i.productId, quantity: i.quantity })) },
-      });
-    }
-    const total = order.total('BRL');
-    return { orderId: order.id, totalCents: total.cents, currency: 'BRL' };
-  }
-}
-```
-
-> **Teste sem framework:** `new CreateOrderInteractor(inMemoryRepo, fakeCatalog, fakeEvents, { run: w => w() })`.
-> Se o interactor precisar ser chamado por mais de um adapter ou trocado em teste, extraia uma interface `CreateOrderUseCase` na `application`; o controller passa a depender dela (é o que o [[hexagonal]] faz como "porta de entrada").
-
-### 6.3 interface: controller, presenter e erros
-
-```ts
-// src/modules/orders/interface/http/orders.controller.ts — fino: traduz HTTP ↔ use case
-import type { CreateOrderInteractor } from '../../application/use-cases/create-order/create-order.interactor';
-import { presentCreatedOrder } from './create-order.presenter';
-
-export interface HttpRequest { body: unknown; requestId: string; }
-export interface HttpResponse { status: number; body: unknown; }
-
-export class OrdersController {
-  constructor(private readonly createOrder: CreateOrderInteractor) {}
-
-  async create(req: HttpRequest): Promise<HttpResponse> {
-    const input = parseCreateOrderBody(req.body);          // validação de FORMATO (400)
-    const output = await this.createOrder.execute(input);
-    return presentCreatedOrder(output, req.requestId);
-  }
-}
-```
-
-```ts
-// src/modules/orders/interface/http/create-order.presenter.ts — Output → resposta HTTP ([[rest-api]])
-import type { CreateOrderOutput } from '../../application/use-cases/create-order/create-order.output';
-
-export function presentCreatedOrder(output: CreateOrderOutput, requestId: string) {
-  return {
-    status: 201,
-    body: { data: output, meta: { timestamp: new Date().toISOString(), requestId } },
-  };
-}
-```
-
-`error-mapper.ts`: igual ao de [[hexagonal]] §6.5 (`DomainError.kind` → status; erro inesperado → 500 genérico).
-
-### 6.4 infrastructure: implementa os gateways
-
-```ts
-// src/modules/orders/infrastructure/persistence/order.repository.sql.ts — IMPLEMENTA OrderRepository
-import type { SqlClient } from '../../../../shared-kernel/persistence/sql-client';
-import type { OrderRepository } from '../../domain/gateways/order.repository';
-import type { Order } from '../../domain/entities/order';
-import { toDomain, type OrderItemRow, type OrderRow } from './order.mapper';
-// mesma lógica de SQL/mapper de [[hexagonal]] §6.6; schema "orders" (módulo é dono dos seus dados)
-
-export class SqlOrderRepository implements OrderRepository {
-  constructor(private readonly sql: SqlClient) {}
-  async save(order: Order): Promise<void> { /* INSERT/UPSERT em orders.orders e orders.order_items */ }
-  async findById(id: string): Promise<Order | undefined> {
-    const [row] = await this.sql.query<OrderRow>(`SELECT * FROM orders.orders WHERE id = $1`, [id]);
-    if (!row) return undefined;
-    const items = await this.sql.query<OrderItemRow>(`SELECT * FROM orders.order_items WHERE order_id = $1`, [id]);
-    return toDomain(row, items);
-  }
-}
-```
-
-```ts
-// src/modules/orders/infrastructure/catalog/catalog.acl.gateway.ts — ACL para outro módulo (só o api/ dele)
-import type { CatalogApi } from '../../../catalog/api';
-import type { CatalogGateway, SellableProduct } from '../../domain/gateways/catalog.gateway';
-
-export class CatalogAclGateway implements CatalogGateway {
-  constructor(private readonly catalog: CatalogApi) {}
-  async findSellableProduct(productId: string): Promise<SellableProduct | undefined> {
-    const p = await this.catalog.getProduct(productId);
-    if (!p || !p.available) return undefined;
-    return { id: p.id, priceCents: p.priceCents, currency: p.currency };   // traduz para o modelo de orders
-  }
-}
-```
-
-Publisher: `infrastructure/messaging/order-events.bus.publisher.ts` implementa `EventPublisherGateway` delegando ao `EventBus`. Subscriber de evento de outro módulo: `interface/events/<evento>.subscriber.ts`, chamando um interactor.
-
-### 6.5 api e composition root
-
-`api/` é **igual** ao de [[hexagonal]] §6.4 (interface `OrdersApi`, `events.ts`, `index.ts`), implementada em `application/facade/orders.facade.ts`.
-
-```ts
-// src/modules/orders/orders.module.ts — único lugar que liga as camadas do módulo
-export function createOrdersModule(deps: OrdersModuleDeps): OrdersModule {
-  const repository = new SqlOrderRepository(deps.sql);
-  const createOrder = new CreateOrderInteractor(
-    repository, new CatalogAclGateway(deps.catalogApi), new BusOrderEventsPublisher(deps.eventBus), deps.uow,
-  );
-  return { api: new OrdersFacade(repository), controller: new OrdersController(createOrder) };
-}
-```
-
-`bootstrap/app.ts`: instancia na ordem das dependências (igual ao de [[hexagonal]] §6.7).
+### 6.7 composição do módulo e bootstrap
+A composição do módulo é o **único lugar que instancia e liga** gateways, use cases, controllers e facade de um módulo. O `bootstrap` instancia os módulos **na ordem das dependências**. Adicionar um módulo é criar a sua composição e registrar uma linha no bootstrap; remover é apagar essa linha.
 
 ---
 
-## 7. Comunicação entre módulos, banco e erros
+## 7. Comunicação entre módulos
 
-Iguais aos de [[hexagonal]] (§7, §8, §9): `api/` + ACL para síncrono; `EventBus` para assíncrono (contrato `eventId/eventType/occurredAt/version/payload`); **schema por módulo** (ou prefixo), sem FK/JOIN entre módulos, migrations versionadas e nunca editadas; `DomainError` → envelope de erro; erro inesperado → 500 genérico.
+| Situação | Mecanismo |
+|---|---|
+| Preciso do dado agora (preço, estoque) | `api/` do outro módulo, consumido por gateway com anticorruption layer |
+| Aviso de que algo aconteceu | evento de integração no barramento (contrato em `api/`) |
+| Efeito que **não pode ser perdido** | outbox: grava o evento na mesma transação e publica depois |
+| Preciso de consistência forte entre dois contextos | reavalie: provavelmente são o mesmo contexto |
 
----
-
-## 8. Configuração de arquitetura
-
-Configuração de projeto: [[typescript-baseline]]. O que é **específico** do Clean é o `.dependency-cruiser.cjs`:
-
-```js
-/** @type {import('dependency-cruiser').IConfiguration} */
-const NPM = ['npm', 'npm-dev', 'npm-optional', 'npm-peer', 'npm-bundled', 'npm-no-pkg', 'npm-unknown'];
-
-module.exports = {
-  forbidden: [
-    { name: 'no-circular', severity: 'error', from: {}, to: { circular: true } },
-
-    // REGRA DA DEPENDÊNCIA — de fora para dentro
-    { name: 'domain-depends-on-nothing', severity: 'error',
-      from: { path: '^src/modules/([^/]+)/domain' },
-      to: { path: '^src', pathNot: ['^src/modules/$1/domain', '^src/shared-kernel'] } },
-    { name: 'domain-no-npm', severity: 'error',
-      from: { path: '^src/modules/[^/]+/domain' }, to: { dependencyTypes: NPM } },
-    { name: 'application-only-domain', severity: 'error',
-      comment: 'use cases conhecem só o domain (e o api de outros módulos)',
-      from: { path: '^src/modules/([^/]+)/application' },
-      to: { path: '^src/modules/$1/(interface|infrastructure)' } },
-    { name: 'application-no-npm', severity: 'error',
-      from: { path: '^src/modules/[^/]+/application' }, to: { dependencyTypes: NPM } },
-    { name: 'interface-not-infrastructure', severity: 'error',
-      from: { path: '^src/modules/[^/]+/interface' }, to: { path: '^src/modules/[^/]+/infrastructure' } },
-    { name: 'infrastructure-not-interface', severity: 'error',
-      from: { path: '^src/modules/[^/]+/infrastructure' }, to: { path: '^src/modules/[^/]+/interface' } },
-    { name: 'infrastructure-not-application', severity: 'error',
-      comment: 'infra implementa gateways do domain; não chama use cases',
-      from: { path: '^src/modules/[^/]+/infrastructure' }, to: { path: '^src/modules/[^/]+/application' } },
-    { name: 'interface-not-domain', severity: 'error',
-      comment: 'controllers falam com use cases, nunca com entities',
-      from: { path: '^src/modules/[^/]+/interface' }, to: { path: '^src/modules/[^/]+/domain' } },
-
-    // ENTRE MÓDULOS — só o api/
-    { name: 'modules-only-through-api', severity: 'error',
-      from: { path: '^src/modules/([^/]+)/' },
-      to: { path: '^src/modules/[^/]+/', pathNot: ['^src/modules/$1/', '^src/modules/[^/]+/api/'] } },
-    { name: 'api-is-contract-only', severity: 'error',
-      from: { path: '^src/modules/[^/]+/api' },
-      to: { path: '^src/modules/[^/]+/(domain|application|interface|infrastructure)' } },
-    { name: 'api-no-npm', severity: 'error',
-      from: { path: '^src/modules/[^/]+/api' }, to: { dependencyTypes: NPM } },
-
-    // shared-kernel e bootstrap
-    { name: 'shared-kernel-isolated', severity: 'error',
-      from: { path: '^src/shared-kernel' }, to: { path: '^src/(modules|bootstrap)' } },
-    { name: 'shared-kernel-no-npm', severity: 'error',
-      from: { path: '^src/shared-kernel' }, to: { dependencyTypes: NPM } },
-    { name: 'nobody-imports-bootstrap', severity: 'error',
-      from: { path: '^src/(modules|shared-kernel)' }, to: { path: '^src/bootstrap' } },
-    { name: 'bootstrap-only-composition-roots', severity: 'error',
-      from: { path: '^src/bootstrap' },
-      to: { path: '^src/modules/[^/]+/(domain|application|interface|infrastructure)' } },
-  ],
-  options: {
-    doNotFollow: { path: 'node_modules' },
-    exclude: { path: '\\.(test|spec)\\.ts$' },
-    tsPreCompilationDeps: true,
-    tsConfig: { fileName: 'tsconfig.json' },
-    enhancedResolveOptions: { exportsFields: ['exports'], conditionNames: ['import', 'require', 'node', 'default'] },
-  },
-};
-```
-
-As regras são genéricas (regex) e valem para **módulo novo sem editar o arquivo**.
-
-> **Falso-verde:** o `arch` só vale se o cruiser realmente lê o TypeScript. Use `typescript@~5.9` e o `scripts/arch-sanity.cjs` do [[typescript-baseline]]; sem eles, TS 7 resulta em "0 módulos analisados" e passa sem checar nada.
+**Proibido:** importar camadas internas de outro módulo; JOIN ou chave estrangeira entre dados de módulos; ler a tabela do vizinho; entity dentro de evento ou `api`; dois módulos compartilhando o mesmo modelo de persistência.
 
 ---
 
-## 9. Testes por camada
+## 8. Banco de dados
+
+- Cada módulo só toca nos **seus** dados.
+- Com banco que suporta schema: **um schema por módulo**. Sem suporte: prefixo no nome da tabela.
+- Referência a outro módulo é só o **identificador**, sem chave estrangeira.
+- Migrations versionadas, automatizadas no pipeline e **nunca editadas** depois de aplicadas em produção. Ficam dentro do módulo, na persistência, com nome que inclui data e hora.
+- Em serviço único, o serviço é dono do seu banco.
+
+---
+
+## 9. Tratamento de erros
+
+- Regra de negócio violada → erro de domínio (com código e tipo) → mapeador da `interface` → envelope de erro padrão.
+- Erro de formato → 400 com detalhe por campo, na `interface`.
+- Erro inesperado → 500 genérico; log com a causa técnica e **sem dados do payload** ([[observability]]).
+- Nível de erro no log apenas para falha que exige atenção humana; erro de negócio esperado não é erro de log.
+
+---
+
+## 10. Testes por camada
 
 | Camada | O que testar | Como |
 |---|---|---|
-| `domain` | invariantes e regras | puro, sem mock, ms |
-| `application` | orquestração, ordem, erros | fakes dos gateways, sem framework |
-| `interface` | formato, status HTTP, presenter | controller com o use case mockado |
-| `infrastructure` | mapper, SQL, contrato do gateway | integração com banco real/container |
-| arquitetura | regra da dependência | `npm run arch` + prova de proteção (§10 passo 11) |
+| `domain` | invariantes e regras | puro, sem mock |
+| `application` | orquestração, ordem, erros | gateways falsos, sem framework |
+| `interface` | formato, status HTTP, presenter | controller com o use case simulado |
+| `infrastructure` | mapeador, consultas, contrato do gateway | integração com banco real ou container |
+| arquitetura | regra da dependência | verificação automática + prova de proteção (§11) |
 
-Pirâmide e cobertura de [[testing]] (≥ 80%).
-
----
-
-## 10. Modo SCAFFOLD
-
-1. Criar a árvore da §4 (`.gitkeep` nas vazias).
-2. Gerar os arquivos de [[typescript-baseline]] (package, tsconfig, ESLint, Vitest, `.env.example`, `.gitignore`, `config.ts`, `health.ts`, `in-memory-event-bus.ts`).
-3. Gerar o `shared-kernel` (igual ao de [[hexagonal]]).
-4. Gerar `.dependency-cruiser.cjs` (§8).
-5. Por módulo, **uma fatia vertical completa**: entity + erro, gateways, interactor+input+output, controller+presenter+error-mapper, repositório+mapper, ACL (se houver), publisher, `api/`, `<m>.module.ts`, migration inicial, testes.
-6. `bootstrap/app.ts` e `main.ts` (config → infra com as libs do plan → `buildApp` → HTTP com `GET /health`).
-7. Instalar **só** as dependências declaradas.
-8. Testes das camadas (§9).
-9. README e `.env.example`.
-10. `npm run verify` até ficar verde.
-11. **Prova de proteção:** importar temporariamente uma lib npm em `domain/`, depois um `../../other/domain/...` em outro módulo, e um `infrastructure` dentro de `application`; confirmar que `npm run arch` **falha** em cada um; remover. Registrar.
-12. Relatar o que foi criado, o `verify` real e as pendências. **Não commitar.**
+Pirâmide e cobertura mínima conforme [[testing]] e [[quality]].
 
 ---
 
-## 11. Outros modos
+## 11. Verificação automática da arquitetura
 
-### 11.1 `ADD-MODULE`
-1. Confirmar nome e responsabilidade em 1 frase (se precisa de "e", dividir).
-2. Criar `src/modules/{{module}}/` conforme §4; começar pelo `api/`.
-3. Domain → application → interface/infrastructure → `<m>.module.ts`.
-4. Registrar em `bootstrap/app.ts` na ordem de dependência.
-5. Schema/prefixo e migration próprios; **sem FK** para outro módulo.
-6. Outro módulo necessário: gateway no `domain` + ACL em `infrastructure/<outro>`; reação a evento: `interface/events`.
-7. Testes + `npm run verify`; README; decisão nova de fronteira vai em Decisões no `plan.md`.
+A ferramenta de arquitetura da stack deve impor, de forma genérica (valendo para qualquer módulo novo sem editar a configuração):
 
-### 11.2 `ADD-USE-CASE`
-1. Pasta `application/use-cases/<verb-noun>/` com `*.input.ts`, `*.output.ts`, `*.interactor.ts`.
-2. Gateways novos no `domain/gateways`, só se necessário.
-3. Regra de negócio na entity/domain service, **teste primeiro**.
-4. Interactor orquestra; sem cálculo de negócio.
-5. Controller + presenter (e rota) em `interface/http`; implementação do gateway novo em `infrastructure`.
-6. Ligar em `<m>.module.ts`. `npm run verify`.
+- sem **ciclos** de dependência;
+- `domain` depende só dele mesmo e do `shared-kernel`, e **nenhuma biblioteca externa**;
+- `application` não depende de `interface` nem de `infrastructure`, nem de bibliotecas externas;
+- `interface` e `infrastructure` não se importam; `interface` não importa o `domain` direto; `infrastructure` não chama a `application`;
+- módulo só importa o `api/` de outro; `api/` só depende do `shared-kernel`;
+- `shared-kernel` não depende de módulos nem do bootstrap; ninguém importa o bootstrap; o bootstrap só importa a composição dos módulos.
+
+**Prova de proteção:** uma regra só vale se a violação realmente falha. Ao criar o projeto, introduza temporariamente uma violação conhecida (biblioteca no domínio; import entre módulos fora do `api/`; `infrastructure` dentro de `application`), confirme que a verificação **falha**, e remova. Registre o resultado.
 
 ---
 
-## 12. Modo AUDIT
+## 12. Como montar e estender
 
-O **processo** (diagnóstico, relatório, ajuste incremental com baseline de violações, nunca big-bang) é o de [[hexagonal]] §14.1 a §14.3, trocando a checklist H-xx pela C-xx abaixo e `adapters/ports` por `interface/infrastructure/gateways`. Regra: AUDIT é **somente leitura** até o humano aprovar o plano; ajuste por task de SDD.
+### 12.1 Criar o projeto
+1. Confirmar os itens da §3 com o `plan.md`.
+2. Criar a árvore da §4, com um módulo por contexto.
+3. Criar o `shared-kernel` (§6.1) e o `bootstrap` (configuração, saúde, barramento, montagem).
+4. Configurar a verificação de arquitetura (§11).
+5. Para cada módulo, entregar **uma fatia vertical completa** de um caso de uso: entity e erro, gateways, interactor com input e output, controller com presenter e mapeador de erros, repositório com mapeador, anticorruption layer (se houver), publicador, `api/`, composição, migration inicial e testes.
+6. Escrever README e `.env.example`; rodar a verificação completa (lint, tipos, arquitetura, testes, auditoria de dependências) e relatar o resultado real.
+7. Fazer a prova de proteção (§11).
 
-Classificação de layout: **A** em camadas/MVC · **B** parcialmente Clean (há `domain`/`use-cases` mas com vazamento) · **C** conforme · **D** sem estrutura.
+### 12.2 Novo módulo (contexto)
+1. Confirmar nome e responsabilidade em uma frase; se precisa de "e" para descrever, dividir.
+2. Criar as pastas do módulo, começando pelo `api/`.
+3. Depois `domain`, `application`, `interface`, `infrastructure` e a composição.
+4. Registrar no `bootstrap` respeitando a ordem de dependências.
+5. Criar o schema ou prefixo e a migration. **Nenhuma chave estrangeira** para outro módulo.
+6. Se precisa de outro módulo: gateway no `domain` + anticorruption layer em `infrastructure/<outro>`. Se precisa reagir a evento: assinante em `interface/events`.
+7. Testes das camadas; atualizar o README; decisão nova de fronteira vai em Decisões no `plan.md`.
 
-| ID | Verificação | Como checar | Sev |
-|---|---|---|---|
-| C-01 | `domain` sem npm/framework | `npm run arch` (`domain-no-npm`) | B |
-| C-02 | `domain` não importa application/interface/infrastructure/outro módulo | `npm run arch` | B |
-| C-03 | `application` só conhece `domain` | `npm run arch` | B |
-| C-04 | `interface` ↔ `infrastructure` sem importação mútua | `npm run arch` | B |
-| C-05 | `infrastructure` não chama use cases | `npm run arch` | B |
-| C-06 | Módulo só importa o `api/` do outro | `npm run arch` | B |
-| C-07 | Sem ciclos | `npm run arch` | B |
-| C-08 | Gateways (interfaces) vivem no `domain/gateways`; implementação só em `infrastructure` | revisão | B |
-| C-09 | Entity ≠ modelo de persistência (há mapper) | existência de `*.mapper.ts` | M |
-| C-10 | Controller sem regra de negócio nem mutação de entity | revisão de `interface/http` | M |
-| C-11 | Interactor sem cálculo de negócio | revisão de `application` | M |
-| C-12 | Infra não decide fluxo (não dispara e-mail/evento por condição de negócio) | revisão de `infrastructure` | M |
-| C-13 | Entities ricas, não anêmicas (getters/setters sem comportamento) | `grep -rnE "^\s*set [a-z]" src/modules/*/domain` + revisão | M |
-| C-14 | Dinheiro não é `number` | revisão | M |
-| C-15 | Schema/prefixo por módulo; sem FK/JOIN entre módulos | migrations | B |
-| C-16 | `process.env` só em `bootstrap/config.ts`; `GET /health` ok; sem `console.*`/`any` | `npm run lint` + teste | M |
-| C-17 | Cobertura ≥ 80%; `npm audit` sem alta/crítica | `npm run verify` | B |
-| C-18 | README e `.env.example` | existência | m |
-
-Anti-padrões típicos: **over-engineering em CRUD** (use camadas simples); **entity anêmica** (mover regra do service para a entity); **vazamento de framework no domain**; **interactor "faz-tudo"**; **módulo acessando internals do vizinho** (use `api/` + ACL).
+### 12.3 Novo caso de uso
+1. Pasta do caso de uso em `application/use-cases` com input, output e interactor.
+2. Gateways novos no `domain/gateways`, **só se** necessário.
+3. Regra de negócio na entity ou domain service, **com teste primeiro**.
+4. Interactor orquestra, sem cálculo de negócio.
+5. Controller e presenter (e rota) em `interface/http`; implementação do gateway novo em `infrastructure`.
+6. Ligar na composição do módulo e rodar a verificação completa.
 
 ---
 
-## 13. Definition of Done
+## 13. Checklist de conformidade (C-xx)
 
-- [ ] `npm run verify` verde, com o resultado real colado no relatório
-- [ ] Prova de proteção feita (SCAFFOLD/ADD-MODULE)
-- [ ] Nenhuma lib fora do `plan.md`; nenhum segredo
+Para revisão de PR e auditoria. Severidade: **B** bloqueante · **M** maior · **m** menor.
+
+| ID | Verificação | Sev |
+|---|---|---|
+| C-01 | `domain` sem biblioteca externa ou framework | B |
+| C-02 | `domain` não importa application, interface, infrastructure nem outro módulo | B |
+| C-03 | `application` só conhece o `domain` | B |
+| C-04 | `interface` e `infrastructure` não se importam | B |
+| C-05 | `infrastructure` não chama use cases | B |
+| C-06 | Módulo só importa o `api/` de outro | B |
+| C-07 | Sem ciclos de dependência | B |
+| C-08 | Gateways vivem em `domain/gateways`; a implementação só em `infrastructure` | B |
+| C-09 | Entity é diferente do modelo de persistência (existe mapeador) | M |
+| C-10 | Controller sem regra de negócio nem mutação direta de entity | M |
+| C-11 | Interactor sem cálculo de negócio | M |
+| C-12 | Infraestrutura não decide fluxo (não dispara e-mail ou evento por condição de negócio) | M |
+| C-13 | Entities ricas, não anêmicas | M |
+| C-14 | Dinheiro não é decimal flutuante | M |
+| C-15 | Schema ou prefixo por módulo; sem chave estrangeira ou JOIN entre módulos | B |
+| C-16 | Variáveis de ambiente só na configuração do `bootstrap`; health check no formato da [[observability]]; sem log solto | M |
+| C-17 | Cobertura mínima de [[quality]] atingida; auditoria de dependências sem alta ou crítica | B |
+| C-18 | README e `.env.example` presentes | m |
+
+---
+
+## 14. Auditar um repo existente
+
+Auditar é **somente leitura** até o humano aprovar o plano; o ajuste vem por task de SDD.
+
+1. **Classificar o layout:** A em camadas/MVC · B parcialmente Clean (há `domain` e use cases, com vazamentos) · C conforme · D sem estrutura (tratar como A, começando pelo contexto mais rico).
+2. **Rodar a verificação de arquitetura em modo aviso** (sem alterar código) e anotar as violações por regra.
+3. **Preencher o checklist C-xx** com evidência (arquivo e linha, ou saída do comando). O que não puder ser verificado vai em "não verificado"; nunca marcar conforme por suposição.
+4. **Relatório:** layout detectado, aderência (n de 18), bloqueantes abertos, resultado por item, violações por regra e plano de ajuste ordenado (uma task por PR).
+
+### Ajuste incremental (depois da aprovação)
+1. Ferramentas primeiro, sem mudar comportamento (lint, tipos, testes e verificação de arquitetura).
+2. **Congelar a dívida:** registrar as violações atuais como conhecidas e impedir que cresçam; daí em diante, violação nova falha.
+3. Criar a estrutura do módulo sem mover nada ainda.
+4. Migrar **por caso de uso**, do mais rico em regra para o mais simples: teste de caracterização → extrair a regra para a entity → criar gateways e interactor → mover banco/API para `infrastructure` com mapeador → o controller antigo passa a chamar o use case → remover a violação da lista conhecida.
+5. Fechar as fronteiras entre módulos (`api/` + anticorruption layer; separar dados).
+6. Quando a lista de violações conhecidas esvaziar, apagá-la.
+
+**Nunca:** reescrever o repo de uma vez; mudar regra de negócio ao mover código; mudar contrato HTTP público sem task explícita.
+
+### Anti-padrões e correção
+
+| Anti-padrão | Correção |
+|---|---|
+| Over-engineering em CRUD | usar camadas simples |
+| Entity anêmica | mover a regra do service para a entity |
+| Framework vazando para o domain | classe de domínio pura + mapeador na infraestrutura |
+| Interactor "faz-tudo" | dividir em use cases coesos, um por intenção |
+| Módulo usando internals do vizinho | `api/` + anticorruption layer |
+| Infraestrutura decidindo fluxo | a decisão sobe para o use case; a infraestrutura só executa |
+
+---
+
+## 15. Definition of Done
+
+- [ ] Verificação completa verde (lint, tipos, arquitetura, testes com a cobertura de [[quality]], auditoria de dependências) e resultado real no relatório
+- [ ] Prova de proteção feita (projeto novo ou módulo novo)
+- [ ] Nenhuma biblioteca fora do `plan.md`; nenhum segredo
 - [ ] README atualizado
-- [ ] Dúvidas de negócio como `[NEEDS CLARIFICATION]`
+- [ ] Dúvidas de negócio registradas como `[NEEDS CLARIFICATION]`
 - [ ] Nada commitado sem pedido
 
 ---
 
-## 14. Evolução para microserviço
+## 16. Evolução para microserviço
 
-Extrair `catalog`: o `CatalogAclGateway` passa a chamar HTTP; o subscriber troca o `InMemoryEventBus` pela fila; o schema vira banco próprio. **Não mudam** `domain` nem `application`. O novo serviço segue [[microservice]] e mantém a mesma estrutura.
+Para extrair um módulo (por exemplo `catalog`): o gateway do consumidor passa a chamar HTTP em vez do `api/` em memória; o assinante de evento troca o barramento em memória pela fila; o schema vira banco próprio. **Não mudam** `domain` nem `application`. O novo serviço mantém a mesma estrutura.
