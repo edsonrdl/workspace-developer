@@ -1,6 +1,6 @@
 ---
 name: clean-architecture
-description: Template descritivo da Clean Architecture (Entities, Use Cases, Interface Adapters, Frameworks & Drivers) para monolito modular ou serviço único. Define a estrutura de pastas, a responsabilidade de cada camada, onde fica cada tipo de código e a regra da dependência. Sem código e sem linguagem específica.
+description: Template descritivo da Clean Architecture (Entities, Use Cases, Interface Adapters, Frameworks & Drivers, mapeados em domain, application, webapi e infrastructure) para monolito modular ou serviço único. Define a estrutura de pastas, a responsabilidade de cada camada, onde fica cada tipo de código e a regra da dependência. Sem código e sem linguagem específica.
 status: proposto
 ---
 
@@ -13,7 +13,7 @@ status: proposto
 ## Referências
 
 - [[constitution]] manda: em conflito, ela vence este arquivo
-- [[rest-api]]: contrato HTTP da camada de interface
+- [[rest-api]]: contrato HTTP da camada `webapi`
 - [[testing]], [[quality]], [[security]], [[observability]]
 
 ---
@@ -23,21 +23,35 @@ status: proposto
 A regra é uma só: **a dependência de código sempre aponta para dentro**. O fluxo de execução vai para fora (a requisição entra, o banco é consultado), mas quem **conhece** quem é decidido de fora para dentro.
 
 ```
-   interface ──────┐                    ← controllers, presenters, assinantes de evento
-                   ├──►  application ──►  domain
-   infrastructure ─┘     (use cases)      (entities, gateways)
-   (banco, fila, APIs)
+   webapi ────────┐                     ← camada externa de APRESENTAÇÃO: controllers, presenters,
+   (entrada)      │                       DTOs HTTP, tratamento de erros, assinantes de evento
+                  ├──►  application ──►  domain
+   infrastructure ┘     (use cases)      (entities, gateways)
+   (saída: banco, fila, APIs)
 ```
 
-| Camada | Papel | Conhece |
-|---|---|---|
-| `domain` (Entities) | regra de negócio da empresa; define também as **interfaces (gateways)** que exige do mundo | ninguém |
-| `application` (Use Cases) | regra de aplicação; orquestra as entities por meio dos gateways | só o `domain` |
-| `interface` (Interface Adapters) | traduz entrada e saída: controller, presenter, formato HTTP, assinante de evento | só a `application` |
-| `infrastructure` (Frameworks & Drivers) | implementa os gateways com tecnologia real: banco, fila, APIs | só o `domain` |
+O modelo original de Robert C. Martin tem quatro círculos. Na prática de mercado (soluções .NET como Core / Infrastructure / Presentation e projetos Java multi-módulo com um módulo `webapi`), o círculo externo é separado em **dois projetos irmãos**: um de entrada e um de saída. É assim que este template organiza:
 
-- `interface` e `infrastructure` **não se enxergam**.
+| Círculo de Martin | Pasta deste template | O que mora lá |
+|---|---|---|
+| Entities | `domain` | regra de negócio da empresa; define também os **gateways** (contratos) que exige do mundo |
+| Use Cases | `application` | regra de aplicação; orquestra as entities por meio dos gateways |
+| Interface Adapters + Frameworks & Drivers (lado de **entrada**) | `webapi` | controllers, presenters, DTOs de request/response, mapeador de erros, assinantes de evento, e o framework HTTP que os hospeda |
+| Interface Adapters + Frameworks & Drivers (lado de **saída**) | `infrastructure` | repositórios, mapeadores, ACL para outro módulo, publicador de eventos, e o driver do banco ou da fila |
+| Montagem | `bootstrap` | liga os módulos e inicia a aplicação |
+
+Observação de fidelidade: no texto original de Martin, controller e presenter são Interface Adapters, e o framework web é o círculo mais externo. A divisão em `webapi` e `infrastructure` é a forma comum de materializar esses dois círculos externos em pastas ou projetos, e é o que se encontra na maioria das implementações. O que não muda é a regra: o `domain` e a `application` nunca enxergam o framework.
+
+| Camada | Conhece |
+|---|---|
+| `domain` | ninguém |
+| `application` | só o `domain` |
+| `webapi` | só a `application` (use cases, input e output) |
+| `infrastructure` | só o `domain` (gateways e entities) |
+
+- `webapi` e `infrastructure` **não se enxergam**.
 - **Entre módulos:** um módulo só usa a pasta `api/` do outro.
+- **Dados que cruzam fronteiras** são sempre dados simples e isolados (input, output, comando). Nunca uma entity nem uma linha de banco.
 
 Estas regras devem ser verificadas por uma **ferramenta automática de arquitetura** da stack (regra de dependências no pipeline). Sem essa verificação verde, não há merge.
 
@@ -97,10 +111,10 @@ Faltou algum item? Pergunte antes de decidir; não escolha biblioteca por conta 
 │   │       ├── application/            ← Use Cases (regras de aplicação)
 │   │       │   ├── use-cases/<caso>/   ← por caso de uso: interactor + input + output
 │   │       │   └── facade/             ← implementa a interface pública de api/
-│   │       ├── interface/              ← Interface Adapters
+│   │       ├── webapi/                 ← apresentação: ENTRADA (controllers, DTOs HTTP, presenters, assinantes)
 │   │       │   ├── http/               ← controllers, presenters, formato request/response, mapeador de erros
 │   │       │   └── events/             ← assinantes de eventos de OUTROS módulos
-│   │       ├── infrastructure/         ← Frameworks & Drivers
+│   │       ├── infrastructure/         ← adapters de SAÍDA (o que o sistema usa do mundo)
 │   │       │   ├── persistence/        ← repositórios (implementam gateways), mapeadores, migrations
 │   │       │   ├── <outro-modulo>/     ← anticorruption layer para outro módulo (usa só o api/ dele)
 │   │       │   └── messaging/          ← publicação no barramento de eventos
@@ -127,27 +141,27 @@ Faltou algum item? Pergunte antes de decidir; não escolha biblioteca por conta 
 
 ## 5. Responsabilidade de cada pasta
 
-| Pasta | Responsabilidade | Pode depender de | Não pode depender de |
-|---|---|---|---|
-| `shared-kernel` | tipos base e contratos técnicos mínimos | nada | módulos, bootstrap, bibliotecas externas |
-| `<m>/api` | contrato público do módulo | `shared-kernel` | domain, application, interface, infrastructure, bibliotecas externas |
-| `<m>/domain` | entities, objetos de valor, gateways e regra de negócio | `shared-kernel` e o próprio domain | application, interface, infrastructure, outros módulos, bibliotecas externas |
-| `<m>/application` | use cases (interactors), input e output | o próprio domain, `api` de outros módulos, `shared-kernel` | interface, infrastructure, bibliotecas externas |
-| `<m>/interface` | controllers, presenters, formato HTTP, assinantes de evento | `application` (use cases, input/output), bibliotecas de HTTP | infrastructure, domain direto |
-| `<m>/infrastructure` | implementa gateways com tecnologia | domain (gateways, entities), `api` de outros módulos, bibliotecas | interface, application |
-| composição do módulo | liga as camadas do módulo | todas as camadas do próprio módulo, `api` de outros | — |
-| `bootstrap` | liga módulos, configuração e inicialização | composição dos módulos, `shared-kernel` | camadas internas dos módulos |
+| Pasta                | Responsabilidade                                            | Pode depender de                                                  | Não pode depender de                                                          |
+| -------------------- | ----------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `shared-kernel`      | tipos base e contratos técnicos mínimos                     | nada                                                              | módulos, bootstrap, bibliotecas externas                                      |
+| `<m>/api`            | contrato público do módulo                                  | `shared-kernel`                                                   | domain, application, webapi, infrastructure, bibliotecas externas         |
+| `<m>/domain`         | entities, objetos de valor, gateways e regra de negócio     | `shared-kernel` e o próprio domain                                | application, webapi, infrastructure, outros módulos, bibliotecas externas |
+| `<m>/application`    | use cases (interactors), input e output                     | o próprio domain, `api` de outros módulos, `shared-kernel`        | webapi, infrastructure, bibliotecas externas                              |
+| `<m>/webapi`     | controllers, presenters, formato HTTP, assinantes de evento | `application` (use cases, input/output), bibliotecas de HTTP      | infrastructure, domain direto                                                 |
+| `<m>/infrastructure` | implementa gateways com tecnologia                          | domain (gateways, entities), `api` de outros módulos, bibliotecas | webapi, application                                                       |
+| composição do módulo | liga as camadas do módulo                                   | todas as camadas do próprio módulo, `api` de outros               | —                                                                             |
+| `bootstrap`          | liga módulos, configuração e inicialização                  | composição dos módulos, `shared-kernel`                           | camadas internas dos módulos                                                  |
 
 ### Onde colocar cada tipo de código
 
 | O que é | Onde fica |
 |---|---|
-| Validação de **formato** (obrigatório, tamanho, e-mail) | `interface/http` |
+| Validação de **formato** (obrigatório, tamanho, e-mail) | `webapi/http` |
 | Validação e cálculo de **negócio** | `domain` (entity ou domain service) |
 | Orquestração, transação, autorização | interactor em `application/use-cases` |
-| JSON ↔ input/output | `interface/http` (controller) |
-| Formatar o output como resposta HTTP | presenter em `interface/http` |
-| Autenticação (token, sessão) | `interface/http` (middleware) |
+| JSON ↔ input/output | `webapi/http` (controller) |
+| Formatar o output como resposta HTTP | presenter em `webapi/http` |
+| Autenticação (token, sessão) | `webapi/http` (middleware) |
 | Banco, cache, API externa | `infrastructure` |
 | Chamada a outro módulo | `infrastructure/<modulo>` com anticorruption layer |
 | Evento de negócio (algo ocorreu) | `domain/events` |
@@ -155,7 +169,7 @@ Faltou algum item? Pergunte antes de decidir; não escolha biblioteca por conta 
 | Montagem de dependências | composição do módulo e `bootstrap` |
 | Variáveis de ambiente | **somente** a configuração do `bootstrap` |
 
-**Triagem rápida:** a decisão depende de conhecimento de negócio ou é só execução técnica? Negócio vai para o `domain`; técnica vai para `interface` ou `infrastructure`. O use case apenas **chama** a decisão que a entity tomou.
+**Triagem rápida:** a decisão depende de conhecimento de negócio ou é só execução técnica? Negócio vai para o `domain`; técnica vai para `webapi` ou `infrastructure`. O use case apenas **chama** a decisão que a entity tomou.
 
 ---
 
@@ -181,13 +195,15 @@ Só o que todos os módulos realmente compartilham e quase nunca muda: raiz de a
 ### 6.4 api (contrato público)
 Só interfaces, dados simples e constantes de eventos. **Nunca** expõe entity. Mudar algo aqui é mudar contrato: afeta todos os módulos consumidores, então muda com cuidado e com versão de evento.
 
-### 6.5 interface (Interface Adapters)
+### 6.5 webapi (camada de apresentação, entrada)
+Tudo que **recebe** algo do mundo e o converte em chamada de use case. É aqui que ficam os controllers e o framework HTTP (ou o consumidor de fila), apenas como cola: o código de negócio não o enxerga.
 - **Controller:** fino. Valida o formato, monta o input, chama o use case e entrega o output ao presenter.
 - **Presenter:** transforma o output na resposta HTTP padrão de [[rest-api]].
 - **Mapeador de erros:** converte erro de domínio em resposta HTTP; erro inesperado vira 500 genérico, sem vazar detalhe interno.
 - **Assinantes de evento:** recebem o evento de outro módulo (usando só o `api/` dele) e chamam um use case.
 
-### 6.6 infrastructure (Frameworks & Drivers)
+### 6.6 infrastructure (adapters de saída)
+Tudo que o sistema **usa** do mundo: o use case pede por um gateway, e a infraestrutura o implementa com a tecnologia real. Todo o SQL e o código do driver ficam confinados aqui.
 - **Repositório:** implementa o gateway de persistência e converte entre entity e modelo do banco por um **mapeador** (a entity nunca é o modelo de persistência).
 - **Anticorruption layer:** implementa o gateway que fala com outro módulo, usando só o `api/` dele, e traduz o modelo alheio para o modelo próprio.
 - **Publicador de eventos:** entrega o evento ao barramento.
@@ -223,8 +239,8 @@ A composição do módulo é o **único lugar que instancia e liga** gateways, u
 
 ## 9. Tratamento de erros
 
-- Regra de negócio violada → erro de domínio (com código e tipo) → mapeador da `interface` → envelope de erro padrão.
-- Erro de formato → 400 com detalhe por campo, na `interface`.
+- Regra de negócio violada → erro de domínio (com código e tipo) → mapeador da `webapi` → envelope de erro padrão.
+- Erro de formato → 400 com detalhe por campo, na `webapi`.
 - Erro inesperado → 500 genérico; log com a causa técnica e **sem dados do payload** ([[observability]]).
 - Nível de erro no log apenas para falha que exige atenção humana; erro de negócio esperado não é erro de log.
 
@@ -236,7 +252,7 @@ A composição do módulo é o **único lugar que instancia e liga** gateways, u
 |---|---|---|
 | `domain` | invariantes e regras | puro, sem mock |
 | `application` | orquestração, ordem, erros | gateways falsos, sem framework |
-| `interface` | formato, status HTTP, presenter | controller com o use case simulado |
+| `webapi` | formato, status HTTP, presenter | controller com o use case simulado |
 | `infrastructure` | mapeador, consultas, contrato do gateway | integração com banco real ou container |
 | arquitetura | regra da dependência | verificação automática + prova de proteção (§11) |
 
@@ -250,8 +266,8 @@ A ferramenta de arquitetura da stack deve impor, de forma genérica (valendo par
 
 - sem **ciclos** de dependência;
 - `domain` depende só dele mesmo e do `shared-kernel`, e **nenhuma biblioteca externa**;
-- `application` não depende de `interface` nem de `infrastructure`, nem de bibliotecas externas;
-- `interface` e `infrastructure` não se importam; `interface` não importa o `domain` direto; `infrastructure` não chama a `application`;
+- `application` não depende de `webapi` nem de `infrastructure`, nem de bibliotecas externas;
+- `webapi` e `infrastructure` não se importam; `webapi` não importa o `domain` direto; `infrastructure` não chama a `application`;
 - módulo só importa o `api/` de outro; `api/` só depende do `shared-kernel`;
 - `shared-kernel` não depende de módulos nem do bootstrap; ninguém importa o bootstrap; o bootstrap só importa a composição dos módulos.
 
@@ -273,10 +289,10 @@ A ferramenta de arquitetura da stack deve impor, de forma genérica (valendo par
 ### 12.2 Novo módulo (contexto)
 1. Confirmar nome e responsabilidade em uma frase; se precisa de "e" para descrever, dividir.
 2. Criar as pastas do módulo, começando pelo `api/`.
-3. Depois `domain`, `application`, `interface`, `infrastructure` e a composição.
+3. Depois `domain`, `application`, `webapi`, `infrastructure` e a composição.
 4. Registrar no `bootstrap` respeitando a ordem de dependências.
 5. Criar o schema ou prefixo e a migration. **Nenhuma chave estrangeira** para outro módulo.
-6. Se precisa de outro módulo: gateway no `domain` + anticorruption layer em `infrastructure/<outro>`. Se precisa reagir a evento: assinante em `interface/events`.
+6. Se precisa de outro módulo: gateway no `domain` + anticorruption layer em `infrastructure/<outro>`. Se precisa reagir a evento: assinante em `webapi/events`.
 7. Testes das camadas; atualizar o README; decisão nova de fronteira vai em Decisões no `plan.md`.
 
 ### 12.3 Novo caso de uso
@@ -284,7 +300,7 @@ A ferramenta de arquitetura da stack deve impor, de forma genérica (valendo par
 2. Gateways novos no `domain/gateways`, **só se** necessário.
 3. Regra de negócio na entity ou domain service, **com teste primeiro**.
 4. Interactor orquestra, sem cálculo de negócio.
-5. Controller e presenter (e rota) em `interface/http`; implementação do gateway novo em `infrastructure`.
+5. Controller e presenter (e rota) em `webapi/http`; implementação do gateway novo em `infrastructure`.
 6. Ligar na composição do módulo e rodar a verificação completa.
 
 ---
@@ -296,9 +312,9 @@ Para revisão de PR e auditoria. Severidade: **B** bloqueante · **M** maior · 
 | ID | Verificação | Sev |
 |---|---|---|
 | C-01 | `domain` sem biblioteca externa ou framework | B |
-| C-02 | `domain` não importa application, interface, infrastructure nem outro módulo | B |
+| C-02 | `domain` não importa application, webapi, infrastructure nem outro módulo | B |
 | C-03 | `application` só conhece o `domain` | B |
-| C-04 | `interface` e `infrastructure` não se importam | B |
+| C-04 | `webapi` e `infrastructure` não se importam | B |
 | C-05 | `infrastructure` não chama use cases | B |
 | C-06 | Módulo só importa o `api/` de outro | B |
 | C-07 | Sem ciclos de dependência | B |
