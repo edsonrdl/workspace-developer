@@ -275,6 +275,19 @@ A ferramenta de arquitetura da stack deve impor, de forma genérica (valendo par
 6. Adapter de entrada (rota) e, se houver porta nova, o adapter de saída.
 7. Ligar na composição do módulo e rodar a verificação completa.
 
+### 11.4 Nova integração (API externa, mensageria ou outro módulo)
+A aplicação **nunca** chama a tecnologia: ela chama uma porta de saída, e um adapter de saída a implementa.
+1. **Nomear a porta pelo negócio**, não pela tecnologia nem pelo provedor: `buscar pagamento`, e não `chamar API do provedor X`.
+2. **Declarar a porta em `application/ports/out`**, só com as operações que o caso de uso realmente usa, recebendo e devolvendo **tipos do próprio módulo** (nunca a resposta crua da API).
+3. **Chamar a porta no serviço de aplicação**, sem saber o que existe por trás.
+4. **Implementar em `adapters/out/<integração>/`** (um adapter por serviço): a chamada HTTP ou o cliente, a tradução do formato externo para o modelo próprio, o tratamento de timeout, erro e nova tentativa. Sem regra de negócio.
+5. **Mensageria de saída:** a porta de publicação fica em `application/ports/out`; o publicador fica em `adapters/out/events`. **Mensageria de entrada:** o assinante em `adapters/in/events` recebe o evento e chama uma porta de entrada; se o evento cruza módulos, o contrato dele fica em `api/`.
+6. **Outro módulo:** porta de saída + anticorruption layer em `adapters/out/<outro-modulo>`, usando só o `api/` do vizinho.
+7. **Ligar** a porta à implementação na composição do módulo. Endereço, credenciais e chaves vêm da configuração do `bootstrap`; biblioteca nova entra no `plan.md`.
+8. **Testar:** o serviço de aplicação com uma porta falsa (sem rede); o adapter com serviço simulado ou container.
+
+Trocar de provedor é escrever outro adapter e mudar só a ligação na composição. `domain` e `application` não mudam.
+
 ---
 
 ## 12. Checklist de conformidade (H-xx)
