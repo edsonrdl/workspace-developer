@@ -1,6 +1,6 @@
 ---
 name: clean-architecture-exemplo
-description: Exemplo explicativo da Clean Architecture com Java e Spring, usando 3 casos de uso (criar, buscar e listar cliente). Mostra onde cada classe fica, quem conhece quem e quem cria os interactors (o Spring, pelo @Service). Documento de leitura, não é um projeto.
+description: Exemplo explicativo da Clean Architecture com Java e Spring, usando 3 casos de uso (criar, buscar e listar cliente). Mostra onde cada classe fica, quem conhece quem, quem cria os interactors (o Spring, pelo @Service), como a application chega ao repositório e onde fica cada mapper. Documento de leitura, não é um projeto.
 status: proposto
 ---
 
@@ -327,7 +327,168 @@ Banco de dados
 
 ---
 
-## 7. Teste do caso de uso, sem Spring
+## 7. Como a `application` chega ao repositório
+
+Uma dúvida comum: se o interactor não pode conhecer a `infrastructure`, **quem ele chama** para salvar no banco? Ele chama a **interface** `ClientRepository` (do `domain`). Em tempo de execução, quem responde é o `ClientRepositoryImpl`, e quem faz essa troca é o Spring, pela injeção de dependência.
+
+### No interactor
+
+```java
+@Service
+public class CreateClientInteractor implements CreateClientUseCase {
+
+    private final ClientRepository repository;      // tipo = a INTERFACE do domain
+
+    public CreateClientInteractor(ClientRepository repository) {   // o Spring entrega aqui
+        this.repository = repository;
+    }
+
+    @Override
+    public CreateClientOutput execute(CreateClientInput in) {
+        Client saved = repository.save(Client.create(in.name(), in.email()));  // chama a interface
+        return new CreateClientOutput(saved.id(), saved.name(), saved.email());
+    }
+}
+```
+
+O interactor **só escreve o nome da interface**. Ele nunca escreve `ClientRepositoryImpl` e nunca faz `new` dela.
+
+### Na implementação
+
+```java
+@Repository                                                         // "esta classe existe"
+public class ClientRepositoryImpl implements ClientRepository { }   // "e ela É um ClientRepository"
+```
+
+### O que o Spring faz ao subir a aplicação
+
+```
+1. Acha o @Repository  →  ClientRepositoryImpl          (que implementa ClientRepository)
+2. Acha o @Service     →  CreateClientInteractor         (que pede um ClientRepository no construtor)
+3. Raciocina: "o interactor pediu um ClientRepository;
+               eu tenho um ClientRepositoryImpl, que é um ClientRepository"
+4. Cria o ClientRepositoryImpl e o entrega no construtor do interactor
+```
+
+### Por que a `application` não depende da `infrastructure`
+
+```
+CÓDIGO (quem importa quem):
+
+  CreateClientInteractor ──importa──► ClientRepository (interface)  ◄──importa── ClientRepositoryImpl
+        (application)                      (domain)                              (infrastructure)
+
+EXECUÇÃO (quem é chamado):
+
+  CreateClientInteractor ──chama──► ClientRepositoryImpl
+```
+
+No **código**, os dois só importam a interface, que está no meio. Na **execução**, a chamada chega na implementação, porque o Spring a ligou. Esse é o ponto da inversão de dependência: o `import` aponta para dentro, mas a chamada vai para fora.
+
+### Casos especiais
+
+- **Duas implementações da mesma interface** (por exemplo, o repositório normal e um com cache): o Spring não sabe qual escolher. Marque uma com `@Primary` ou indique o nome com `@Qualifier`.
+- **Sem Spring (nos testes):** faça a ligação à mão, passando uma implementação falsa: `new CreateClientInteractor(new InMemoryClientRepository())`.
+- **Montagem manual:** uma classe `@Configuration` faz esse mesmo `new` com `@Bean`, em vez de o Spring descobrir pelas anotações (a variante descrita no fim da seção 6.3).
+
+---
+
+## 8. Mappers: onde cada um fica
+
+**Regra que resume:** cada mapper fica na camada que conhece o formato "de fora". O modelo do banco e o JSON externo são tecnologia, então vão para a `infrastructure`. O request e o response HTTP são do `webapi`. O mapper da `application` só conhece tipos da própria `application` e do `domain`.
+
+| # | Mapper | Converte | Onde fica |
+|---|---|---|---|
+| 1 | Entity ↔ modelo do banco | `Client` ↔ `ClientModel` | `infrastructure/persistence` |
+| 2 | Resposta de API externa → modelo do módulo | JSON do provedor → `Client` | `infrastructure/<integração>` (dentro do adapter) |
+| 3 | Entity → output do caso de uso | `Client` → `CreateClientOutput` | `application`, dentro do interactor |
+| 4 | Request HTTP → input, e output → response | `CreateClientRequest` → `CreateClientInput` | `webapi` (controller ou DTO) |
+
+### O caminho dos dados
+
+```
+CreateClientRequest   (webapi)
+      ↓  mapper 4
+CreateClientInput     (application)
+      ↓  o interactor cria a entity
+Client                (domain)
+      ↓  mapper 1, dentro do repositório
+ClientModel           (infrastructure) → banco
+      ↑  mapper 1 (volta)
+Client                (domain)
+      ↑  mapper 3, no interactor
+CreateClientOutput    (application)
+      ↑  mapper 4
+ClientResponse        (webapi)
+```
+
+Cada tipo só existe na sua camada: `ClientModel` na `infrastructure`, `Client` no `domain`, `Input` e `Output` na `application`, e `Request` e `Response` no `webapi`. Cada mapper fica na fronteira entre dois tipos.
+
+### Mapper 1: entity ↔ modelo do banco (o mais importante)
+
+O **contrato** do domínio não faz mapeamento nenhum: ele só diz "recebo uma entity e devolvo uma entity". Quem converte nos dois sentidos é a **implementação** do contrato.
+
+```java
+// domain/gateways/ClientRepository.java   (contrato: só entity)
+public interface ClientRepository {
+    Client save(Client client);
+    Optional<Client> findById(Long id);
+}
+
+// infrastructure/persistence/ClientMapper.java   (conhece os dois lados)
+@Component
+public class ClientMapper {
+    public ClientModel toModel(Client client) { /* entity → model */ }
+    public Client toDomain(ClientModel model) { return Client.restore(model.getId(), model.getName(), model.getEmail()); }
+}
+
+// infrastructure/persistence/ClientRepositoryImpl.java   (usa o mapper POR DENTRO)
+@Repository
+public class ClientRepositoryImpl implements ClientRepository {
+    private final ClientJpaRepository jpa;
+    private final ClientMapper mapper;
+    // construtor...
+
+    @Override
+    public Client save(Client client) {
+        ClientModel saved = jpa.save(mapper.toModel(client));   // entity → model (para gravar)
+        return mapper.toDomain(saved);                          // model → entity (para devolver)
+    }
+
+    @Override
+    public Optional<Client> findById(Long id) {
+        return jpa.findById(id).map(mapper::toDomain);          // model → entity (para devolver)
+    }
+}
+```
+
+A `application` só vê `repository.save(entity)`. Ela não chama o mapper, não vê o `ClientModel` e não sabe se por baixo é JPA ou outra coisa.
+
+> **Não ponha o mapper no contrato.** Um contrato com `toModel` e `toDomain` obrigaria o `domain` a conhecer o `ClientModel`, que é do banco. Isso é mais grave do que pôr o mapper na `application`. A saída é a de cima: o contrato fala só em entity, e a conversão é um detalhe da implementação.
+
+### Mapper 2: resposta de API externa (dentro do adapter)
+
+```java
+// infrastructure/crm/CrmClientGateway.java   (implementa um gateway do domínio)
+@Component
+public class CrmClientGateway implements ExternalClientGateway {
+    @Override
+    public Client findByDocument(String document) {
+        CrmResponse response = http.get(".../customers?doc=" + document);        // formato do provedor
+        return Client.restore(null, response.fullName(), response.mailAddress()); // modelo seu
+    }
+}
+```
+
+O domínio nunca vê `CrmResponse` nem os nomes `fullName` e `mailAddress`.
+
+### Mappers 3 e 4
+
+Já aparecem nas seções 4 e 6: o interactor monta o `Output` a partir da entity (conversão simples, sem tecnologia), e o controller converte request em input e output em response.
+
+---
+
+## 9. Teste do caso de uso, sem Spring
 
 Como o interactor é uma classe comum, o teste usa só `new` e um repositório falso:
 
@@ -375,7 +536,7 @@ Roda em milissegundos, sem banco e sem Spring.
 
 ---
 
-## 8. Resumo: onde está cada coisa
+## 10. Resumo: onde está cada coisa
 
 | Eu quero... | Onde fica |
 |---|---|
@@ -385,18 +546,22 @@ Roda em milissegundos, sem banco e sem Spring.
 | Orquestrar "criar cliente" | `application/usecases/createclient/CreateClientInteractor` |
 | Receber o HTTP e chamar o caso de uso | `webapi/controllers/ClientController` |
 | Transformar erro de domínio em 404 | `webapi/handlers/ApiExceptionHandler` |
-| Ligar o interactor ao repositório | o Spring injeta pelo construtor (`@Service` no interactor, `@Repository` na implementação) |
+| Ligar o interactor ao repositório | o Spring injeta pelo construtor (`@Service` no interactor, `@Repository` na implementação), como na seção 7 |
+| Converter entity ↔ modelo do banco | `infrastructure/persistence/ClientMapper`, usado só pelo repositório (seção 8) |
+| Converter request/response HTTP | `webapi` (controller ou DTO) |
 | Cache | `infrastructure` (nunca na `application`) |
 
 ---
 
-## 9. Erros comuns (e como evitar)
+## 11. Erros comuns (e como evitar)
 
 | Erro | Correção |
 |---|---|
 | `application` importa algo de `infrastructure` | o contrato vai para `domain/gateways`; a implementação fica na `infrastructure` |
 | Caso de uso devolve `ClientModel` | devolver um `Output`; o modelo do banco não sai da `infrastructure` |
-| Mapper chamado dentro do caso de uso | o mapper fica dentro do `ClientRepositoryImpl` |
+| Mapper do banco chamado dentro do caso de uso | o mapper fica dentro do `ClientRepositoryImpl`; o contrato só fala em entity (seção 8) |
+| Contrato do domínio com `toModel` e `toDomain` | o contrato fala só em entity; a conversão é detalhe da implementação |
+| Interactor escreve `new ClientRepositoryImpl()` | o interactor só conhece a interface; o Spring injeta a implementação (seção 7) |
 | Uma classe com todas as operações (criar, buscar, listar, atualizar, apagar) | um caso de uso por intenção |
 | `RuntimeException("não encontrado")` genérica | erro de domínio, traduzido pelo handler |
 | `Map<String, Object>` como retorno | um `Output` tipado |
